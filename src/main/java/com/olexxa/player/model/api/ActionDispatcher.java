@@ -1,8 +1,9 @@
 package com.olexxa.player.model.api;
 
-import com.olexxa.player.api.Content;
-import com.olexxa.player.api.PlaybackControl;
-import com.olexxa.player.api.PlaylistControl;
+import com.olexxa.player.api.playlist.Content;
+import com.olexxa.player.api.playback.PlaybackControl;
+import com.olexxa.player.api.playlist.PlaylistControl;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
 
@@ -23,8 +24,8 @@ public class ActionDispatcher implements PlaylistControl, PlaybackControl {
     }
 
     @Override
-    public void removeContent(int index) {
-        playlistManager.removeContent(index);
+    public void removeContent(@NotNull Content content) {
+        playlistManager.removeContent(content);
     }
 
     @Override
@@ -33,18 +34,33 @@ public class ActionDispatcher implements PlaylistControl, PlaybackControl {
     }
 
     @Override
-    public void skipTo(int index) {
-        playlistManager.skipTo(index);
+    public void shuffle() {
+        playlistManager.shuffle();
     }
 
     @Override
-    public void next() {
-        playlistManager.next();
+    public void setRandom(boolean state) {
+        playlistManager.setRandom(state);
     }
 
     @Override
-    public void prev() {
-        playlistManager.prev();
+    public void setRepeatable(boolean state) {
+        playlistManager.setRepeatable(state);
+    }
+
+    @Override
+    public boolean skipTo(Content content) {
+        return playlistManager.skipTo(content);
+    }
+
+    @Override
+    public boolean next() {
+        return playlistManager.next();
+    }
+
+    @Override
+    public boolean prev() {
+        return playlistManager.prev();
     }
 
     @Override

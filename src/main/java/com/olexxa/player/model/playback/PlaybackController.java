@@ -1,7 +1,6 @@
 package com.olexxa.player.model.playback;
 
-import com.olexxa.player.api.Content;
-import com.olexxa.player.api.PlaybackControl;
+import com.olexxa.player.api.playlist.Content;
 import com.olexxa.player.model.player.PlayerAdapter;
 
 /**
@@ -17,4 +16,16 @@ public class PlaybackController { //implements PlaybackControl {
     boolean isPlaying;
     long position;
 
+
+    public void stop() {
+
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void play(Content content) {
+
+    }
 }

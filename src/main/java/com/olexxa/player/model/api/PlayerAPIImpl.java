@@ -1,10 +1,11 @@
 package com.olexxa.player.model.api;
 
-import com.olexxa.player.api.Content;
-import com.olexxa.player.api.PlaybackControl;
 import com.olexxa.player.api.PlayerAPI;
-import com.olexxa.player.api.PlaylistControl;
+import com.olexxa.player.api.playback.PlaybackControl;
+import com.olexxa.player.api.playlist.Content;
+import com.olexxa.player.api.playlist.PlaylistControl;
 import com.olexxa.player.javafx.JavaFXPlayer;
+import com.olexxa.player.model.lifecycle.LifecycleManager;
 import com.olexxa.player.model.playlist.PlaylistManager;
 
 /**
@@ -14,9 +15,11 @@ public class PlayerAPIImpl implements PlayerAPI {
 
     private ActionDispatcher dispatcher;
     private PlaylistManager playlistManager;
+    private LifecycleManager lifecycleManager;
 
     public PlayerAPIImpl() {
-        playlistManager = new PlaylistManager();
+        lifecycleManager = new LifecycleManager();
+        playlistManager = new PlaylistManager(lifecycleManager);
 
         dispatcher = new ActionDispatcher() {
             // TODO: this is hack to run player until rest is implemented
@@ -24,7 +27,7 @@ public class PlayerAPIImpl implements PlayerAPI {
             public void play() {
                 if (player == null) {
                     player = new JavaFXPlayer();
-                    Content current = PlayerAPIImpl.this.playlistManager.current();
+                    Content current = lifecycleManager.current();
                     player.openMedia(current);
                 } else
                     player.play();

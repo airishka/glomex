@@ -1,9 +1,7 @@
 package com.olexxa.player.javafx;
 
-import com.olexxa.player.api.PlaybackControl;
+import com.olexxa.player.api.playback.PlaybackControl;
 import javafx.beans.binding.Bindings;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;

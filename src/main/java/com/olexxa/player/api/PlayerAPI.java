@@ -1,5 +1,8 @@
 package com.olexxa.player.api;
 
+import com.olexxa.player.api.playback.PlaybackControl;
+import com.olexxa.player.api.playlist.PlaylistControl;
+
 /**
  * TODO: add events
  *

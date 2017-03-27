@@ -1,7 +1,9 @@
 package com.olexxa.player;
 
 import com.olexxa.player.api.PlayerAPIFactory;
+import com.olexxa.player.api.playlist.Content;
 import com.olexxa.player.javafx.JavaFXUtils;
+import com.olexxa.player.model.api.ContentImpl;
 import javafx.application.Application;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -31,7 +33,8 @@ public class JavaFXApplication extends Application {
     }
 
     private void initializeAPI(Stage stage) throws MalformedURLException {
-        URL clip = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+        URL url = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+        Content clip = new ContentImpl(url);
 
         PlayerAPIFactory.<Stage, Node>createAPI(
             stage, true,
@@ -43,7 +46,7 @@ public class JavaFXApplication extends Application {
 
                 //api.requestFullScreen();
                 api.playlistManager().addContent(clip);
-                api.playlistManager().skipTo(0);
+                api.playlistManager().skipTo(clip);
                 api.playbackController().play();
                 //api.destroy(() -> System.out.print("Kill it"));
             }

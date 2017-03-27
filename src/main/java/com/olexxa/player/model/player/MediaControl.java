@@ -1,6 +1,6 @@
 package com.olexxa.player.model.player;
 
-import com.olexxa.player.api.Content;
+import com.olexxa.player.api.playlist.Content;
 
 /**
  * Created by <b>me@olexxa.com</b>

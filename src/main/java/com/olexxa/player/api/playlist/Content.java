@@ -1,4 +1,4 @@
-package com.olexxa.player.api;
+package com.olexxa.player.api.playlist;
 
 import java.net.URL;
 import java.util.UUID;

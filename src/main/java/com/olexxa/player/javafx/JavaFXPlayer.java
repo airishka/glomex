@@ -1,6 +1,6 @@
 package com.olexxa.player.javafx;
 
-import com.olexxa.player.api.Content;
+import com.olexxa.player.api.playlist.Content;
 import com.olexxa.player.model.player.PlayerAdapter;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;

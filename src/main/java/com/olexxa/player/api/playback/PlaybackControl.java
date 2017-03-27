@@ -1,4 +1,4 @@
-package com.olexxa.player.api;
+package com.olexxa.player.api.playback;
 
 /**
  * Created by <b>me@olexxa.com</b>
