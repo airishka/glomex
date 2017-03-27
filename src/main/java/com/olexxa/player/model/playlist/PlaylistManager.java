@@ -9,7 +9,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.util.*;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -107,7 +106,7 @@ public class PlaylistManager implements PlaylistControl {
     }
 
     @Override
-    public boolean skipTo(Content nextContent) {
+    public boolean skipTo(@NotNull Content nextContent) {
         if (nextContent == null)
             return false;
 
@@ -163,7 +162,7 @@ public class PlaylistManager implements PlaylistControl {
                             return i;
                         })
                         .min(Comparator.<Integer>naturalOrder())
-                        .map( index -> index + currentIndex)
+                        .map(index -> index + currentIndex)
                         .orElse(null);
                 }
             } else {

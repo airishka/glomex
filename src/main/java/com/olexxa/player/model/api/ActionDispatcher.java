@@ -49,7 +49,7 @@ public class ActionDispatcher implements PlaylistControl, PlaybackControl {
     }
 
     @Override
-    public boolean skipTo(Content content) {
+    public boolean skipTo(@NotNull Content content) {
         return playlistManager.skipTo(content);
     }
 

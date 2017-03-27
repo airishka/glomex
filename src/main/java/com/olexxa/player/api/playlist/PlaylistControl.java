@@ -6,17 +6,29 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URL;
 
 /**
- * TODO: think: if playlist is immutable, then could be split to building and playing parts
+ * improve: if playlist is immutable, then could be split to building and playing parts
  *
  * Created by <b>me@olexxa.com</b>
  */
 @SuppressWarnings("unused")
 public interface PlaylistControl {
 
+    /**
+     * Add items in the end of playlist.
+     * Can be called during playing
+     */
     void addContent(@Nullable URL... urls);
 
+    /**
+     * Add items in the end of playlist.
+     * Can be called during playing
+     */
     void addContent(@Nullable Content... contents);
 
+    /**
+     * Remove item from playlist.
+     * Moves to next item if this item is currently played
+     */
     void removeContent(@NotNull Content content);
 
     /**
@@ -45,7 +57,7 @@ public interface PlaylistControl {
     /**
      * Switch to the content passed
      */
-    boolean skipTo(Content current);
+    boolean skipTo(@NotNull Content current);
 
     /**
      * Chooses next (random non played) item, accordingly to options.
@@ -53,8 +65,8 @@ public interface PlaylistControl {
     boolean next();
 
     /**
-     * Choose previously played content, if history contains it.
-     * Otherwise chooses previous play list item
+     * Choose previously played content, if any.
+     * Otherwise chooses previous playlist item
      */
     boolean prev();
 
