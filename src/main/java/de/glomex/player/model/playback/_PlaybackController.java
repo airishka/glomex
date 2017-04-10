@@ -6,7 +6,7 @@ import de.glomex.player.model.player.PlayerAdapter;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaybackController { //implements PlaybackControl {
+public class _PlaybackController { //implements PlaybackControl {
 
     PlayerAdapter player;
 

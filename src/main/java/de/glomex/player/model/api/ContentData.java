@@ -9,24 +9,24 @@ import java.util.UUID;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class ContentImpl implements Content {
+public class ContentData implements Content {
 
     final UUID uuid;
     final URL url;
 
-    public ContentImpl(String url) throws MalformedURLException {
+    public ContentData(String url) throws MalformedURLException {
         this(UUID.randomUUID(), new URL(url));
     }
 
-    public ContentImpl(URL url) {
+    public ContentData(URL url) {
         this(UUID.randomUUID(), url);
     }
 
-    public ContentImpl(String uuid, String url) throws MalformedURLException {
+    public ContentData(String uuid, String url) throws MalformedURLException {
         this(UUID.fromString(uuid), new URL(url));
     }
 
-    public ContentImpl(UUID uuid, URL url) {
+    public ContentData(UUID uuid, URL url) {
         this.uuid = uuid;
         this.url = url;
     }
