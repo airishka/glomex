@@ -1,17 +1,19 @@
 package de.glomex.player.api.events;
 
+import de.glomex.player.api.etc.ControlTag;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Implementation can said keep only one listener of each type, forcing app to use facade or multiplexer patterns,
- * or, alternatively, do it by itself.
+ * Listener can implement several listener interfaces at once.
+ * Supports several listeners of the same type:
  *
  * Created by <b>me@olexxa.com</b>
  */
-public interface SubscribeControl {
+@SuppressWarnings("unused")
+public interface SubscribeControl extends ControlTag {
 
-    <L extends Listener> void registerListener(@NotNull L listener);
+    void registerListener(@NotNull ListenerTag listener);
 
-    <L extends Listener> void unregisterListener(@NotNull L listener);
+    void unregisterListener(@NotNull ListenerTag listener);
 
 }

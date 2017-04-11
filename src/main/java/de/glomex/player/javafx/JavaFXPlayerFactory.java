@@ -3,18 +3,14 @@ package de.glomex.player.javafx;
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.PlayerFactory;
 import de.glomex.player.api.playlist.PlaylistControl;
-import de.glomex.player.model.api.PlayerAPIImpl;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
+import de.glomex.player.model.api.GlomexPlayer;
+import de.glomex.player.model.api.GlomexPlayerFactory;
 import javafx.scene.Node;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.function.BiConsumer;
 
 /**
@@ -51,7 +47,8 @@ public class JavaFXPlayerFactory extends PlayerFactory<Stage, Node> {
         logPane.maxHeightProperty().bind(playerUI.heightProperty());
         logPane.minHeightProperty().bind(playerUI.heightProperty());
 
-        PlayerAPIImpl api = new PlayerAPIImpl();
+        GlomexPlayer api = GlomexPlayerFactory.create();
+
         Node leftPane = useDefaultControls?
             JavaFXUtils.createBars("API Default controls", mediaView, api.playbackController(), api.subscribeManager()) :
             mediaView;

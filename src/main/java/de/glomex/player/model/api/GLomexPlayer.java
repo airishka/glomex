@@ -1,10 +1,14 @@
 package de.glomex.player.model.api;
 
+import com.google.inject.Provides;
 import de.glomex.player.api.PlayerAPI;
+import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.events.SubscribeControl;
+import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistControl;
+import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.javafx.JavaFXPlayer;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.EventLogger;
@@ -14,26 +18,30 @@ import de.glomex.player.model.playlist.PlaylistManager;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class PlayerAPIImpl implements PlayerAPI {
+public class GlomexPlayer implements PlayerAPI {
 
+    private EtcController etcController;
     private ActionDispatcher dispatcher;
     private PlaylistManager playlistManager;
-    private EventHandler eventHandler;
     private SubscribeManager subscribeManager;
+    private EventHandler eventHandler;
 
-    public PlayerAPIImpl() {
-        playlistManager = new PlaylistManager();
+    public GlomexPlayer() {
+        etcController = new EtcController();
         subscribeManager = new SubscribeManager();
+        eventHandler = new EventHandler(subscribeManager);
+        playlistManager = new PlaylistManager(eventHandler.listener(PlaylistListener.class));
 
-        // TODO: this is hack to run player until rest is implemented
         dispatcher = new ActionDispatcher();
+        // mock: this is hack to run player until rest is implemented
         dispatcher.playbackController(new PlaybackControl() {
             JavaFXPlayer player;
             public void play() {
                 if (player == null) {
                     player = new JavaFXPlayer();
                     player.eventListener = eventHandler.listener(PlaybackListener.class);
-                    player.openMedia(playlistManager.currentContent);
+                    MediaData media = etcController.mediaResolver().resolve(playlistManager.currentContent());
+                    player.openMedia(media);
                 } else
                     player.play();
             }
@@ -47,26 +55,21 @@ public class PlayerAPIImpl implements PlayerAPI {
                 return player.getPosition();
             }
         });
-        eventHandler = new EventHandler(subscribeManager);
     }
 
+    // mock: remove it
     public void addEventLogger(EventLogger logger) {
         eventHandler.addLogger(logger);
     }
 
     @Override
-    public void requestFullScreen() {
-        throw new IllegalStateException("FIXME: Not implemented");
+    public EtcControl etcController() {
+        return etcController;
     }
 
-    @Override
+    @Override @Provides
     public SubscribeControl subscribeManager() {
         return subscribeManager;
-    }
-
-    @Override
-    public void destroy(Runnable callback) {
-        throw new IllegalStateException("FIXME: Not implemented");
     }
 
     // no sense in action dispatcher - playlist manager is always the same
@@ -78,6 +81,11 @@ public class PlayerAPIImpl implements PlayerAPI {
     @Override
     public PlaybackControl playbackController() {
         return dispatcher.playbackController();
+    }
+
+    @Provides
+    protected EventHandler eventHandler() {
+        return eventHandler;
     }
 
 }

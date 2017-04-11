@@ -1,14 +1,14 @@
 package de.glomex.player.model.playlist;
 
-import de.glomex.player.api.playlist.Content;
+import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
-import de.glomex.player.model.api.ContentImpl;
+import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.model.lifecycle.LifecycleManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.net.URL;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -16,15 +16,15 @@ import java.util.stream.Stream;
  * This object allows to
  * - manage playlist
  * - navigate on it
- * <p>
  * It doesn't control playback still.
- * Commands like next(), prev(), skipTo() doesn't trigger elements to be player,
- * it just send command to lifecycle manager to open content.
- * <p>
- * To start playing it, either play() command must be issued, or autoplay feature should be turned on
- * <p>
- * IMPROVE: playlist can be extracted to separate object; manager will only contain operations, whilst playlist will keep statuses, current selection and options
- * <p>
+ *
+ * Commands like next(), prev(), skipTo() don't start playback,
+ * just control populate manager to open content.
+ *
+ * To start playing it, either play() command must be issued to playback control, or auto play feature must be turned on
+ *
+ * IMPROVE: separate playlist management (adding/modifying/etc) and operations with status, options, etc
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class PlaylistManager implements PlaylistControl {
@@ -33,66 +33,22 @@ public class PlaylistManager implements PlaylistControl {
 
     private enum Status {nonPlayed, isBeingPlayed, played}
 
-    private LifecycleManager lifecycleManager;
-
     private final Object lock = new Object();
-    private final List<Content> playlist = new ArrayList<>();
-    // improve: history + currentContent duplicates statuses
-    private final Map<UUID, Status> statuses = new HashMap<>();
-    private final Deque<Content> history = new ArrayDeque<>(MAX_HISTORY_SIZE);
-
-    // todo: fixme public - for mocks
-    @Nullable
-    public Content currentContent;
 
     private boolean repeatable;
     private boolean random;
 
-    @Override
-    public void addContent(URL... urls) {
-        Stream.of(urls)
-            .map(url -> (Content) new ContentImpl(UUID.randomUUID(), url))
-            .forEach(playlist::add);
-    }
+    private final PlaylistListener playlistListener;
 
-    @Override
-    public void addContent(Content... contents) {
-        playlist.addAll(Arrays.asList(contents));
-    }
+    private final List<MediaID> playlist = new ArrayList<>();
+    private final Map<MediaID, Status> statuses = new HashMap<>(); // statuses are needed because history size is limited
+    private final Deque<MediaID> history = new ArrayDeque<>();
 
-    @Override
-    public void removeContent(@Nullable Content contentToRemove) {
-        if (contentToRemove == null)
-            return;
-        synchronized (lock) {
-            if (contentToRemove.equals(currentContent))
-                next();
-            playlist.remove(contentToRemove);
-            statuses.remove(contentToRemove.uuid());
-            history.removeIf(candidate -> candidate.equals(contentToRemove));
-        }
-    }
+    @Nullable private MediaID current;
+    @Nullable private LifecycleManager lifecycleManager;
 
-    @Override
-    public void clear() {
-        synchronized (lock) {
-            playlist.clear();
-            statuses.clear();
-            history.clear();
-            if (currentContent != null) {
-                lifecycleManager.destroy();
-                lifecycleManager = null;
-            }
-            currentContent = null;
-        }
-    }
-
-    @Override
-    public void shuffle() {
-        statuses.clear();
-        if (currentContent != null)
-            statuses.put(currentContent.uuid(), Status.isBeingPlayed);
-        Collections.shuffle(playlist);
+    public PlaylistManager(PlaylistListener playlistListener) {
+        this.playlistListener = playlistListener;
     }
 
     @Override
@@ -105,108 +61,214 @@ public class PlaylistManager implements PlaylistControl {
         repeatable = state;
     }
 
+    // fixme: mock method, remove it
+    public MediaID currentContent() {
+        return current;
+    }
+
     @Override
-    public boolean skipTo(@NotNull Content nextContent) {
-        if (nextContent == null)
+    public void addContent(@NotNull MediaID... medias) {
+        // public API, so caller may ignore @NotNull
+        // noinspection ConstantConditions
+        if (medias == null)
+            return;
+        synchronized (lock) {
+            playlist.addAll(Arrays.asList(medias));
+        }
+        playlistListener.onChanged();
+    }
+
+    @Override
+    public void removeContent(@NotNull MediaID toRemove) {
+        // public API, so caller may ignore @NotNull
+        // noinspection ConstantConditions
+        if (toRemove == null)
+            return;
+        synchronized (lock) {
+            if (toRemove.equals(current))
+                next();
+            history.removeIf(candidate -> candidate.equals(toRemove));
+            playlist.remove(toRemove);
+            statuses.remove(toRemove);
+        }
+        playlistListener.onChanged();
+    }
+
+    @Override
+    public void clear() {
+        synchronized (lock) {
+            playlist.clear();
+            statuses.clear();
+            history.clear();
+            if (current != null) {
+                // noinspection ConstantConditions
+                lifecycleManager.destroy();
+                lifecycleManager = null;
+            }
+            current = null;
+        }
+        playlistListener.onChanged();
+    }
+
+    @Override
+    public void shuffle() {
+        statuses.clear();
+        if (current != null)
+            statuses.put(current, Status.isBeingPlayed);
+        Collections.shuffle(playlist);
+        playlistListener.onChanged();
+    }
+
+    @Override
+    public boolean skipTo(int index) {
+        synchronized (lock) {
+            if (index > playlist.size())
+                return false;
+
+            MediaID coming = playlist.get(index);
+            //noinspection SimplifiableIfStatement
+            if (coming == null)
+                return false;
+
+            return skipTo(coming, true);
+        }
+    }
+
+    @Override
+    public boolean skipTo(@NotNull MediaID coming) {
+        // Annotated as not null, but in case 3rd party caller ignores it, it's checked for null
+        // noinspection ConstantConditions
+        if (coming == null)
             return false;
 
-        if (currentContent != null) {
-            statuses.put(currentContent.uuid(), Status.played);
-            if (history.size() > MAX_HISTORY_SIZE)
-                history.pollFirst();
-            history.offerLast(currentContent);
+        synchronized (lock) {
+            if (!playlist.contains(coming))
+                addContent(coming);
+
+            return skipTo(coming, true);
+        }
+    }
+
+    // outer synchronization required
+    private boolean skipTo(@NotNull MediaID coming, boolean add2History) {
+        if (current != null) {
+            statuses.put(current, Status.played);
+
+            if (add2History) {
+                // control history size by ourselves
+                if (history.size() > MAX_HISTORY_SIZE)
+                    history.pollFirst();
+                history.offerLast(current);
+            }
+
+            // noinspection ConstantConditions
             lifecycleManager.destroy();
             lifecycleManager = null;
         }
 
-        if (!playlist.contains(nextContent))
-            addContent(nextContent);
+        current = coming;
+        statuses.put(coming, Status.isBeingPlayed);
 
-        currentContent = nextContent;
-        statuses.put(nextContent.uuid(), Status.isBeingPlayed);
-        lifecycleManager = new LifecycleManager(nextContent);
+        lifecycleManager = new LifecycleManager();
+        lifecycleManager.open(coming);
 
-        // TODO: fire NEXT ITEM
-
+        playlistListener.onNext(coming);
         return true;
     }
 
     @Override
     public boolean next() {
-        // todo: handle full list, events
+        return traverse(this::findNext, true);
+    }
+
+    @Override
+    public boolean prev() {
+        return traverse(this::findPrev, false);
+    }
+
+    private boolean traverse(Supplier<MediaID> mediaFinder, boolean add2History) {
         synchronized (lock) {
             if (playlist.isEmpty())
                 return false;
 
-            Integer nextIndex = null;
-            if (!repeatable) {
-                Stream<Content> stream = playlist.stream()
-                    .filter(content -> {
-                        Status s = statuses.get(content.uuid());
-                        return s == null || Status.nonPlayed == s;
-                    });
-                if (random) {
-                    List<Integer> nonPlayed = stream
-                        .map(playlist::indexOf)
-                        .collect(Collectors.toList());
-                    if (!nonPlayed.isEmpty()) {
-                        int random = new Random().nextInt(nonPlayed.size());
-                        nextIndex = nonPlayed.get(random);
-                    }
-                } else {
-                    int currentIndex = currentContent == null ? 0 : playlist.indexOf(currentContent);
-                    nextIndex = stream
-                        .map(content -> {
-                            int i = playlist.indexOf(content) - currentIndex;
-                            if (i < 0)
-                                i += currentIndex;
-                            return i;
-                        })
-                        .min(Comparator.<Integer>naturalOrder())
-                        .map(index -> index + currentIndex)
-                        .orElse(null);
-                }
-            } else {
-                if (random)
-                    nextIndex = new Random().nextInt(playlist.size());
-                else {
-                    if (currentContent == null)
-                        nextIndex = 0;
-                    else {
-                        nextIndex = playlist.indexOf(currentContent) + 1;
-                        if (nextIndex > playlist.size())
-                            nextIndex = 0;
-                    }
-                }
-            }
-            if (nextIndex == null) {
-                // todo: fire END OF LIST
+            MediaID coming = mediaFinder.get();
+            if (coming == null) {
+                playlistListener.onFinished();
                 return false;
             } else {
-                Content nextContent = playlist.get(nextIndex);
-                skipTo(nextContent);
+                skipTo(coming, add2History);
                 return true;
             }
         }
     }
 
-    @Override
-    public boolean prev() {
+    // outer synchronization required
+    // todo: could be enforced with ReentranceLock, but this will pollute code with dev-time checks
+    private MediaID findNext() {
+        Integer nextIndex = null;
+        if (!repeatable) {
+            Stream<MediaID> stream = playlist.stream()
+                .filter(mediaID -> {
+                    Status s = statuses.get(mediaID);
+                    return s == null || Status.nonPlayed == s;
+                });
+            if (random) {
+                List<Integer> nonPlayed = stream
+                    .map(playlist::indexOf)
+                    .collect(Collectors.toList());
+                if (!nonPlayed.isEmpty()) {
+                    int random = new Random().nextInt(nonPlayed.size());
+                    nextIndex = nonPlayed.get(random);
+                }
+            } else {
+                int currentIndex = current == null ? 0 : playlist.indexOf(current);
+                nextIndex = stream
+                    .map(content -> {
+                        int i = playlist.indexOf(content) - currentIndex;
+                        if (i < 0)
+                            i += currentIndex;
+                        return i;
+                    })
+                    .min(Comparator.<Integer>naturalOrder())
+                    .map(index -> index + currentIndex)
+                    .orElse(null);
+            }
+        } else {
+            if (random)
+                nextIndex = new Random().nextInt(playlist.size());
+            else {
+                if (current == null)
+                    nextIndex = 0;
+                else {
+                    nextIndex = playlist.indexOf(current) + 1;
+                    if (nextIndex > playlist.size())
+                        nextIndex = 0;
+                }
+            }
+        }
+        return nextIndex != null? playlist.get(nextIndex) : null;
+    }
+
+    // outer synchronization required
+    private MediaID findPrev() {
         // improve: think if prev should work directly without history in non-random
-        Content nextContent = history.pollLast();
-        if (nextContent == null) {
-            int index = currentContent == null ? 0 : playlist.indexOf(currentContent);
-            index--;
-            if (index < 0)
-                index = playlist.size();
-            nextContent = playlist.get(index);
+        MediaID previous = history.pollLast();
+        // history is empty, or element in history was removed from playlist in race (just in case)
+        // the last can't happens because history is synchronized with playlist,
+        // don't want to pollute code with anti-dev mistakes code
+        if (previous == null) { // || !playlist.contains(previous)) {
+            int index;
+            if (random) {
+                index = new Random().nextInt(playlist.size());
+            } else {
+                index = current == null ? 0 : playlist.indexOf(current);
+                index--;
+                if (index < 0)
+                    index = playlist.size();
+            }
+            previous = playlist.get(index);
         }
-        if (nextContent == null)
-            return false;
-        else {
-            skipTo(nextContent);
-            return true;
-        }
+        return previous;
     }
 
 }

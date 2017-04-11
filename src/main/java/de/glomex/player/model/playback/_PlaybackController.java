@@ -1,6 +1,6 @@
 package de.glomex.player.model.playback;
 
-import de.glomex.player.api.playlist.Content;
+import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.model.player.PlayerAdapter;
 
 /**
@@ -12,7 +12,7 @@ public class _PlaybackController { //implements PlaybackControl {
 
     boolean autoplay;
 
-    Content current;
+    MediaID current;
     boolean isPlaying;
     long position;
 
@@ -25,7 +25,7 @@ public class _PlaybackController { //implements PlaybackControl {
         return isPlaying;
     }
 
-    public void play(Content content) {
+    public void play(MediaID mediaID) {
 
     }
 }

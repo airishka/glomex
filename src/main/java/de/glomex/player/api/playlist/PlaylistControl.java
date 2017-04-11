@@ -1,7 +1,7 @@
 package de.glomex.player.api.playlist;
 
+import de.glomex.player.api.etc.ControlTag;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 
@@ -13,25 +13,19 @@ import java.net.URL;
  * Created by <b>me@olexxa.com</b>
  */
 @SuppressWarnings("unused")
-public interface PlaylistControl {
+public interface PlaylistControl extends ControlTag {
 
     /**
      * Add items in the end of playlist.
      * Can be called during playing
      */
-    void addContent(@Nullable URL... urls);
-
-    /**
-     * Add items in the end of playlist.
-     * Can be called during playing
-     */
-    void addContent(@Nullable Content... contents);
+    void addContent(@NotNull MediaID... mediaIDs);
 
     /**
      * Remove item from playlist.
      * Moves to next item if this item is currently played
      */
-    void removeContent(@NotNull Content content);
+    void removeContent(@NotNull MediaID mediaID);
 
     /**
      * Remove all items from playlist
@@ -58,9 +52,16 @@ public interface PlaylistControl {
 
     /**
      * Switch to the content passed
+     * It there is several media with the same id added, first found will be played.
+     *
      * @throws java.lang.IllegalArgumentException when content passed is not in the list
      */
-    boolean skipTo(@NotNull Content current) throws IllegalArgumentException;
+    boolean skipTo(@NotNull MediaID current) throws IllegalArgumentException;
+
+    /**
+     * Play item  with index passed
+     */
+    boolean skipTo(int  index);
 
     /**
      * Chooses next (random non played) item, accordingly to options.

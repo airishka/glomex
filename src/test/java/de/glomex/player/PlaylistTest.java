@@ -1,11 +1,10 @@
 package de.glomex.player;
 
-import de.glomex.player.api.playlist.Content;
-import de.glomex.player.model.api.ContentImpl;
-import de.glomex.player.model.lifecycle.LifecycleManager;
+import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.media.MediaUUID;
 import de.glomex.player.model.playlist.PlaylistManager;
 import junit.framework.TestCase;
-import org.junit.Test;
 
 import java.net.MalformedURLException;
 
@@ -14,32 +13,74 @@ import java.net.MalformedURLException;
  */
 public class PlaylistTest extends TestCase {
 
-    public void testNext() throws MalformedURLException {
-        PlaylistManager playlist = new PlaylistManager();
+    class MockPlaylistListener implements PlaylistListener {
+        public void onChanged() {}
+        public void onNext(MediaID mediaID) { current = mediaID; }
+        public void onFinished() {}
+    }
 
-        Content
-            a = new ContentImpl("http://olexxa.com/1.avi"),
-            b = new ContentImpl("http://olexxa.com/2.avi"),
-            c = new ContentImpl("http://olexxa.com/3.avi"),
-            d = new ContentImpl("http://olexxa.com/4.avi");
+    final MediaID
+        a = new MediaUUID(),
+        b = new MediaUUID(),
+        c = new MediaUUID(),
+        d = new MediaUUID();
 
+    final PlaylistManager playlist = new PlaylistManager(new MockPlaylistListener());
+
+    MediaID current;
+
+    public PlaylistTest() throws MalformedURLException {}
+
+    public void testNotRepeatableNotRandom() {
         playlist.addContent(a, b, c, d);
 
-//        playlist.setRandom(true);
+        playlist.setRandom(false);
         playlist.setRepeatable(false);
 
         playlist.skipTo(a);
-        assertSame(a, playlist.currentContent);
+        assertSame(a, current);
         playlist.skipTo(b);
-        assertSame(b, playlist.currentContent);
+        assertSame(b, current);
+
         playlist.next();
-        assertNotSame(a, playlist.currentContent);
-        assertNotSame(b, playlist.currentContent);
-        Content third = playlist.currentContent;
+        assertSame(c, current);
         playlist.next();
-        assertNotSame(third, playlist.currentContent);
-//        System.out.println(third.url());
+        assertSame(d, current);
+
+        playlist.prev();
+        assertSame(c, current);
+        playlist.prev();
+        assertSame(b, current);
+        playlist.prev();
+        assertSame(a, current);
     }
 
+    public void testNotRepeatableRandom() {
+        playlist.addContent(a, b, c, d);
+
+        playlist.setRandom(true);
+        playlist.setRepeatable(false);
+
+        playlist.skipTo(b);
+        assertSame(b, current);
+        playlist.next();
+        assertNotSame(b, current);
+        MediaID second = current;
+        playlist.next();
+        assertNotSame(b, current);
+        assertNotSame(second, current);
+        MediaID third = current;
+        playlist.next();
+        assertNotSame(b, current);
+        assertNotSame(second, current);
+        assertNotSame(third, current);
+
+        playlist.prev();
+        assertSame(third, current);
+        playlist.prev();
+        assertSame(second, current);
+        playlist.prev();
+        assertSame(b, current);
+    }
 
 }

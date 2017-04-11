@@ -1,11 +1,12 @@
 package de.glomex.player.api.playback;
 
-import de.glomex.player.api.events.Listener;
+import de.glomex.player.api.events.ListenerTag;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public interface PlaybackListener extends Listener {
+@SuppressWarnings("unused")
+public interface PlaybackListener extends ListenerTag {
 
     void onPlay();
 

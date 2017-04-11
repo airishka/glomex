@@ -1,8 +1,8 @@
 package de.glomex.player.model.events;
 
-import de.glomex.player.api.events.Listener;
+import com.google.inject.Inject;
+import de.glomex.player.api.events.ListenerTag;
 import de.glomex.player.api.lifecycle.LifecycleListener;
-import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistListener;
 import org.jetbrains.annotations.NotNull;
@@ -49,21 +49,22 @@ public class EventHandler {
     static final Class[] types = new Class[] {PlaylistListener.class, LifecycleListener.class, PlaybackListener.class};
 
     @SuppressWarnings("unchecked")
-    private static final List<Class<? extends Listener>> listenerTypes = Arrays.asList(types);
+    static final List<Class<? extends ListenerTag>> listenerTypes = Arrays.asList(types);
 
+    // todo: move this to Player level, to be shared
     private final int THREADS = 5;
     private final Executor executor = Executors.newFixedThreadPool(THREADS);
 
-    private final Listener proxyListener;
-    private final SubscribeManager subscribeManager;
+    private final ListenerTag proxyListener;
+    private SubscribeManager subscribeManager;
 
     private final List<EventLogger> loggers = new ArrayList<>();
     private final EventTracker eventTracker;
 
     public EventHandler(SubscribeManager subscribeManager) {
-        this.eventTracker = new EventTracker(); // fixme: implement tracker
         this.subscribeManager = subscribeManager;
-        proxyListener = (Listener) Proxy.newProxyInstance(
+        this.eventTracker = new EventTracker(); // fixme: implement tracker
+        proxyListener = (ListenerTag) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             types,
             this::invocationHandler
@@ -76,7 +77,7 @@ public class EventHandler {
 
     @SuppressWarnings("unchecked")
     @NotNull
-    public <L extends Listener> L listener(@NotNull Class<L> type) {
+    public <L extends ListenerTag> L listener(@NotNull Class<L> type) {
         // should be assert - this is internal development error
         if (listenerTypes.contains(type))
             return (L) proxyListener;
@@ -94,8 +95,8 @@ public class EventHandler {
 
         // Callbacks
         @SuppressWarnings("unchecked")
-        Class<? extends Listener> type = (Class<? extends Listener>) method.getDeclaringClass();
-        for (Listener listener: subscribeManager.get(type))
+        Class<? extends ListenerTag> type = (Class<? extends ListenerTag>) method.getDeclaringClass();
+        for (ListenerTag listener: subscribeManager.get(type))
             proceed(listener, method, args);
 
         // Tracker
@@ -105,14 +106,16 @@ public class EventHandler {
     }
 
     // todo: it's assumed that all listeners' methods return no value
-    private void proceed(@NotNull Listener listener, @NotNull Method method, @Nullable  Object[] args) {
+    private void proceed(@NotNull ListenerTag listener, @NotNull Method method, @Nullable  Object[] args) {
         executor.execute(() -> {
             try {
                 method.invoke(listener, args);
-            // fixme: this is for debug
-            } catch (InvocationTargetException | IllegalAccessException e) {
-            //} catch (Throwable e) {
-                log.warning("Exception calling listener " + e.getMessage());
+            } catch (IllegalAccessException error) {
+                // mustn't happens
+                log.severe("Development mistake " + error.getMessage());
+            } catch (InvocationTargetException error) {
+                log.warning("Exception calling listener " + error.getMessage());
+                throw new RuntimeException(error.getTargetException());
             }
         });
     }

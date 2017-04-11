@@ -5,10 +5,12 @@ import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
 
 /**
- * TODO: should it be async? In term of model, there is nothing to wait during api creation. Or could be hidden from api user
+ * TODO: should it be async? In term of model, there is nothing to wait during api creation.
+ * Or could be hidden from api user, encapsulating it within synchronous methods with internal locks.
  *
  * Created by <b>me@olexxa.com</b>
  */
+@SuppressWarnings("unused")
 public abstract class PlayerFactory<UI_IN, UI_OUT> {
 
     public static <UI_IN, UI_OUT> void createPlayerAPI(

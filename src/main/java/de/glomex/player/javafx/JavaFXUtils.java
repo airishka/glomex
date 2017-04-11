@@ -50,11 +50,9 @@ public class JavaFXUtils {
 
     static class ImprovedButton extends ToggleButton {
 
-        private final String name;
         private boolean suppressCommands;
 
-        public ImprovedButton(String name, Image onImage, Image offImage, Runnable onFunction, Runnable offFunction) {
-            this.name = name;
+        public ImprovedButton(Image onImage, Image offImage, Runnable onFunction, Runnable offFunction) {
             setSelected(true);
             ImageView toggleImage = new ImageView();
             toggleImage.setPreserveRatio(true);
@@ -96,7 +94,7 @@ public class JavaFXUtils {
                 label.setAlignment(Pos.CENTER_LEFT);
 
                 Text positionWidget = new Text();
-                ImprovedButton playBtn = new ImprovedButton(text,
+                ImprovedButton playBtn = new ImprovedButton(
                     new Image(cl.getResourceAsStream("play.png")),
                     new Image(cl.getResourceAsStream("stop.png")),
                     playbackControl::play,

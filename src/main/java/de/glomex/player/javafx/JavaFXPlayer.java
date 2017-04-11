@@ -1,6 +1,6 @@
 package de.glomex.player.javafx;
 
-import de.glomex.player.api.playlist.Content;
+import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.model.player.PlayerAdapter;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -16,20 +16,19 @@ public class JavaFXPlayer extends PlayerAdapter {
     private final Stage stage;
     private final MediaView mediaView;
 
-//    boolean playing;
     MediaPlayer player;
 
     public JavaFXPlayer() {
-        // FIXME
+        // mock: mocked UI, remove
         this.stage = JavaFXPlayerFactory.stage;
         this.mediaView = JavaFXPlayerFactory.mediaView;
         autoplay = true;
     }
 
     @Override
-    public void openMedia(Content content) {
+    public void openMedia(MediaData mediaData) {
         // New player object must be created for each new media
-        Media media = new Media(content.url().toExternalForm());
+        Media media = new Media(mediaData.url().toExternalForm());
         player = new MediaPlayer(media);
         player.setAutoPlay(autoplay);
         player.setOnReady(() -> {

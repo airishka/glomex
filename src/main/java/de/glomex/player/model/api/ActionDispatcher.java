@@ -26,15 +26,13 @@ public class ActionDispatcher {
         );
     }
 
+    public PlaybackControl playbackController() {
+        return playbackProxy;
+    }
+
     void playbackController(PlaybackControl delegate) {
         synchronized (lock) {
             this.playbackDelegate = delegate;
-        }
-    }
-
-    public PlaybackControl playbackController() {
-        synchronized (lock) {
-            return playbackProxy;
         }
     }
 
@@ -44,9 +42,12 @@ public class ActionDispatcher {
             if (playbackDelegate != null)
                 try {
                     return method.invoke(playbackDelegate, args);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    log.severe("Implementation error: " + e);
-                    throw new RuntimeException(e);
+                } catch (IllegalAccessException error) {
+                    log.severe("Implementation error: " + error);
+                    throw new RuntimeException(error);
+                } catch (InvocationTargetException error) {
+                    log.severe("Error in delegated method: " + error.getTargetException().getMessage());
+                    throw new RuntimeException(error.getTargetException());
                 }
             else
                 return null;
