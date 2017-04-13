@@ -1,6 +1,5 @@
 package de.glomex.player.model.api;
 
-import com.google.inject.Provides;
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.events.SubscribeControl;
@@ -43,38 +42,36 @@ public class GlomexPlayer implements PlayerAPI {
         mockPlayer(); // mock: remove it
     }
 
-    @Override @Provides
+    @Override
     public @NotNull EtcControl etcController() {
         return etcController;
     }
 
-    @Override @Provides
+    @Override
     public @NotNull SubscribeControl subscribeManager() {
         return subscribeManager;
     }
 
-    @Override @Provides
+    @Override
     public @NotNull PlaylistControl playlistManager() {
         return playlistManager; // no sense in action dispatcher - playlist manager is always the same
     }
 
-    @Override @Provides
+    @Override
     public @NotNull PlaybackControl playbackController() {
         return dispatcher.playbackController();
     }
 
-    @Provides
     public @NotNull EventHandler eventHandler() {
         return eventHandler;
     }
 
-    @Provides
     public @NotNull ExecutionManager executionManager() {
         return executionManager;
     }
 
     void shutdown() {
-        log.entering("Glomex PLayer", "Shutdown");
+        log.entering("Glomex Player", "shutdown");
         executionManager.shutdown();
         player.shutdown(); // mock: remove
     }

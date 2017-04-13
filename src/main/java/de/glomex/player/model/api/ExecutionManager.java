@@ -17,7 +17,7 @@ public class ExecutionManager implements Executor {
     private final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
     void shutdown() {
-        log.entering("ExecutionManager", "Shutdown");
+        log.entering("ExecutionManager", "shutdown");
         executor.shutdown();
         try {
             if (!executor.awaitTermination(1, TimeUnit.SECONDS)) {

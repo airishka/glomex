@@ -1,6 +1,5 @@
 package de.glomex.player.model.api;
 
-import com.google.inject.Inject;
 import de.glomex.player.api.etc.Callback;
 import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.lifecycle.AdResolver;
@@ -20,7 +19,6 @@ public class EtcController implements EtcControl {
     private MediaResolver mediaResolver;
     private AdResolver adResolver;
 
-    @Inject
     public EtcController(@NotNull GlomexPlayer glomexPlayer) {
         this.glomexPlayer = glomexPlayer;
     }

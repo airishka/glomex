@@ -68,11 +68,6 @@ public class PlaylistManager implements PlaylistControl {
         return current;
     }
 
-    // fixme: remove container dependency
-    protected LifecycleManager createLifecycleManager() {
-        return GlomexPlayerFactory.injector.getInstance(LifecycleManager.class);
-    }
-
     @Override
     public void addContent(@NotNull MediaID... medias) {
         // public API, so caller may ignore @NotNull
@@ -176,7 +171,7 @@ public class PlaylistManager implements PlaylistControl {
         current = coming;
         statuses.put(coming, Status.isBeingPlayed);
 
-        lifecycleManager = createLifecycleManager();
+        lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
         lifecycleManager.open(coming);
 
         playlistListener.onNext(coming);

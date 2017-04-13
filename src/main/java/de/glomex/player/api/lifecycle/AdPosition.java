@@ -2,8 +2,10 @@ package de.glomex.player.api.lifecycle;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+
+import static java.time.temporal.ChronoField.MILLI_OF_DAY;
 
 /**
  * Created by <b>me@olexxa.com</b>
@@ -23,6 +25,12 @@ public class AdPosition {
 
     private AdPosition(double relative) {
         this.relative = relative;
+    }
+
+    public AdPosition(@NotNull String timeText) {
+        LocalTime localTime = LocalTime.parse(timeText);
+        time = localTime.getLong(MILLI_OF_DAY);
+        relative = null;
     }
 
     public AdPosition(long time) {

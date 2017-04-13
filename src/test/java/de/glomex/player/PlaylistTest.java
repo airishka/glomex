@@ -1,31 +1,21 @@
 package de.glomex.player;
 
-import de.glomex.player.api.events.ListenerTag;
 import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
-import de.glomex.player.model.api.EtcController;
-import de.glomex.player.model.api.ExecutionManager;
 import de.glomex.player.model.api.GlomexPlayer;
-import de.glomex.player.model.events.EventHandler;
-import de.glomex.player.model.events.SubscribeManager;
-import de.glomex.player.model.lifecycle.LifecycleManager;
+import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.media.MediaUUID;
-import de.glomex.player.model.playlist.PlaylistManager;
 import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
 public class PlaylistTest extends TestCase {
-
-    class MockPlaylistListener implements PlaylistListener {
-        public void onChanged() {}
-        public void onNext(@NotNull MediaID mediaID) { current = mediaID; }
-        public void onFinished() {}
-    }
 
     final MediaID
         a = new MediaUUID(),
@@ -33,18 +23,49 @@ public class PlaylistTest extends TestCase {
         c = new MediaUUID(),
         d = new MediaUUID();
 
-    final PlaylistManager playlist = new PlaylistManager(new MockPlaylistListener()) {
-        @SuppressWarnings("ConstantConditions")
-        @Override
-        protected LifecycleManager createLifecycleManager() {
-            GlomexPlayer player = new GlomexPlayer();
-            return new LifecycleManager(player.executionManager(), (EtcController) player.etcController(), player.eventHandler());
-        }
-    };
-
+    PlaylistControl playlist;
     MediaID current;
 
     public PlaylistTest() throws MalformedURLException {}
+
+    @Override
+    public void setUp() throws Exception {
+        super.setUp();
+
+        GlomexPlayer player = GlomexPlayerFactory.create();
+        player.subscribeManager().registerListener(new PlaylistListener() {
+            public void onChanged() {}
+            public void onNext(@NotNull MediaID mediaID) {
+                current = mediaID;
+            }
+            public void onFinished() {}
+        });
+
+        playlist = player.playlistManager();
+    }
+
+    private MediaID waitAssertSame(MediaID specimen) {
+        return waitAndAssert(true, specimen);
+    }
+    private MediaID waitAssertNotSame(MediaID... specimens) {
+        return waitAndAssert(false, specimens);
+    }
+    private MediaID waitAndAssert(boolean same, MediaID... specimens) {
+        while (current == null)
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ignored) {
+            }
+        if (same)
+            Arrays.stream(specimens)
+                .forEach(specimen -> assertSame(specimen, current));
+        else
+            Arrays.stream(specimens)
+                .forEach(specimen -> assertNotSame(specimen, current));
+        MediaID last = current;
+        current = null;
+        return last;
+    }
 
     public void testNotRepeatableNotRandom() {
         playlist.addContent(a, b, c, d);
@@ -53,21 +74,21 @@ public class PlaylistTest extends TestCase {
         playlist.setRepeatable(false);
 
         playlist.skipTo(a);
-        assertSame(a, current);
+        waitAssertSame(a);
         playlist.skipTo(b);
-        assertSame(b, current);
+        waitAssertSame(b);
 
         playlist.next();
-        assertSame(c, current);
+        waitAssertSame(c);
         playlist.next();
-        assertSame(d, current);
+        waitAssertSame(d);
 
         playlist.prev();
-        assertSame(c, current);
+        waitAssertSame(c);
         playlist.prev();
-        assertSame(b, current);
+        waitAssertSame(b);
         playlist.prev();
-        assertSame(a, current);
+        waitAssertSame(a);
     }
 
     public void testNotRepeatableRandom() {
@@ -77,25 +98,20 @@ public class PlaylistTest extends TestCase {
         playlist.setRepeatable(false);
 
         playlist.skipTo(b);
-        assertSame(b, current);
+        waitAssertSame(b);
         playlist.next();
-        assertNotSame(b, current);
-        MediaID second = current;
+        MediaID second = waitAssertNotSame(b);
         playlist.next();
-        assertNotSame(b, current);
-        assertNotSame(second, current);
-        MediaID third = current;
+        MediaID third = waitAssertNotSame(b, second);
         playlist.next();
-        assertNotSame(b, current);
-        assertNotSame(second, current);
-        assertNotSame(third, current);
+        waitAssertNotSame(b, second, third);
 
         playlist.prev();
-        assertSame(third, current);
+        waitAssertSame(third);
         playlist.prev();
-        assertSame(second, current);
+        waitAssertSame(second);
         playlist.prev();
-        assertSame(b, current);
+        waitAssertSame(b);
     }
 
 }
