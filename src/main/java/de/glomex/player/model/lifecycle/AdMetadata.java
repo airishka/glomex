@@ -24,7 +24,7 @@ public class AdMetaData implements AdData {
 
     public AdMetaData(@NotNull AdData origin) {
         this.id = origin.id();
-        this.metadataURL = origin.metadataURL();
+        this.metadataURL = origin.url();
         this.position = origin.position();
     }
 
@@ -34,7 +34,7 @@ public class AdMetaData implements AdData {
     }
 
     @Override
-    public URL metadataURL() {
+    public URL url() {
         return metadataURL;
     }
 

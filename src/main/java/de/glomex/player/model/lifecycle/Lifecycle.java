@@ -3,6 +3,7 @@ package de.glomex.player.model.lifecycle;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.model.api.Logging;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -15,7 +16,7 @@ import java.util.stream.Stream;
  */
 public class Lifecycle {
 
-    private static final Logger log = Logger.getLogger(Lifecycle.class.getName());
+    //private static final Logger log = Logging.getLogger(Lifecycle.class);
 
     final MediaID mediaID;
 

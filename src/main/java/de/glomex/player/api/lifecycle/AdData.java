@@ -14,7 +14,7 @@ public interface AdData {
     @NotNull MediaID id();
 
     /** URL to get ad metadata */
-    URL metadataURL();
+    URL url();
 
     /** Ad Placement */
     AdPosition position();

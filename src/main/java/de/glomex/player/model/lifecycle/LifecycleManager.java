@@ -2,17 +2,18 @@ package de.glomex.player.model.lifecycle;
 
 import com.google.inject.Inject;
 import de.glomex.player.api.lifecycle.AdData;
-import de.glomex.player.api.lifecycle.AdResolver;
+import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.lifecycle.MediaResolver;
 import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.model.api.EtcController;
+import de.glomex.player.model.api.ExecutionManager;
+import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.events.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -21,30 +22,40 @@ import java.util.logging.Logger;
  */
 public class LifecycleManager {
 
-    private static final Logger log = Logger.getLogger(LifecycleManager.class.getName());
+    private static final Logger log = Logging.getLogger(LifecycleManager.class);
 
-    @Inject private MediaResolver mediaResolver;
-    @Inject private AdResolver adResolver;
-    @Inject private EventHandler eventHandler;
+    private final @NotNull ExecutionManager executor;
+    private final @NotNull EtcController etcController;
+    private final @NotNull EventHandler eventHandler;
 
     private Future<MediaData> mediaFuture;
     private Future<List<AdData>> adsFuture;
 
     private Lifecycle lifecycle;
 
+    @Inject
+    public LifecycleManager(
+        @NotNull ExecutionManager executor,
+        @NotNull EtcController etcController,
+        @NotNull EventHandler eventHandler
+    ) {
+        this.executor = executor;
+        this.etcController = etcController;
+        this.eventHandler = eventHandler;
+    }
+
     public void open(@NotNull MediaID mediaID) {
         lifecycle = new Lifecycle(mediaID);
 
-        ExecutorService executor = Executors.newFixedThreadPool(2);
         mediaFuture = executor.submit(
-            () -> mediaResolver.resolve(mediaID)
+            () -> etcController.mediaResolver().resolve(mediaID)
         );
         adsFuture = executor.submit(
-            () -> adResolver.resolve(mediaID)
+            () -> etcController.adResolver().resolve(mediaID)
         );
     }
 
-    public void destroy() {
+    public void shutdown() {
         cancelMedia();
         cancelAd();
     }
@@ -64,9 +75,17 @@ public class LifecycleManager {
     }
 
     public Lifecycle lifecycle() {
+        // fixme: add states: a) futures set - is being resolved, b) futures null, content null - errors, c) futures null, content not null - completedd
+        return obtainLifecycle();
+    }
+
+    private Lifecycle obtainLifecycle() {
+        LifecycleListener listener;
         // check for media
         try {
             lifecycle.media = mediaFuture.get();
+            listener = eventHandler.listener(LifecycleListener.class);
+            listener.onMediaResolved(lifecycle.mediaID);
         } catch (InterruptedException interrupted) {
             log.fine("Getting media interrupted " + lifecycle.mediaID);
             cancelAd();
@@ -82,6 +101,7 @@ public class LifecycleManager {
         // check for ads
         try {
             lifecycle.ads(adsFuture.get());
+            listener.onAdResolved(lifecycle.mediaID);
         } catch (InterruptedException interrupted) {
             log.fine("Getting ads interrupted " + lifecycle.mediaID);
         } catch (ExecutionException error) {
@@ -92,7 +112,7 @@ public class LifecycleManager {
         }
 
         lifecycle.resolve();
-        System.out.println(lifecycle.stops());
+        log.finest(Arrays.toString(lifecycle.stops().toArray()));
 
         return lifecycle;
     }

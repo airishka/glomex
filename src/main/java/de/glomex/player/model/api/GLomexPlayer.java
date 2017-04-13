@@ -8,34 +8,84 @@ import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistControl;
-import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.javafx.JavaFXPlayer;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.EventLogger;
 import de.glomex.player.model.events.SubscribeManager;
 import de.glomex.player.model.playlist.PlaylistManager;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
 public class GlomexPlayer implements PlayerAPI {
 
-    private EtcController etcController;
-    private ActionDispatcher dispatcher;
-    private PlaylistManager playlistManager;
-    private SubscribeManager subscribeManager;
-    private EventHandler eventHandler;
+    private static final Logger log = Logging.getLogger(GlomexPlayer.class);
+
+    private final EtcController etcController;
+    private final PlaylistManager playlistManager;
+    private final SubscribeManager subscribeManager;
+
+    private final ExecutionManager executionManager;
+    private final ActionDispatcher dispatcher;
+    private final EventHandler eventHandler;
 
     public GlomexPlayer() {
-        etcController = new EtcController();
-        subscribeManager = new SubscribeManager();
-        eventHandler = new EventHandler(subscribeManager);
-        playlistManager = new PlaylistManager(eventHandler.listener(PlaylistListener.class));
-
+        executionManager = new ExecutionManager();
         dispatcher = new ActionDispatcher();
-        // mock: this is hack to run player until rest is implemented
+        subscribeManager = new SubscribeManager();
+        eventHandler = new EventHandler(subscribeManager, executionManager);
+        etcController = new EtcController(this);
+        playlistManager = new PlaylistManager(eventHandler.playlistListener());
+
+        mockPlayer(); // mock: remove it
+    }
+
+    @Override @Provides
+    public @NotNull EtcControl etcController() {
+        return etcController;
+    }
+
+    @Override @Provides
+    public @NotNull SubscribeControl subscribeManager() {
+        return subscribeManager;
+    }
+
+    @Override @Provides
+    public @NotNull PlaylistControl playlistManager() {
+        return playlistManager; // no sense in action dispatcher - playlist manager is always the same
+    }
+
+    @Override @Provides
+    public @NotNull PlaybackControl playbackController() {
+        return dispatcher.playbackController();
+    }
+
+    @Provides
+    public @NotNull EventHandler eventHandler() {
+        return eventHandler;
+    }
+
+    @Provides
+    public @NotNull ExecutionManager executionManager() {
+        return executionManager;
+    }
+
+    void shutdown() {
+        log.entering("Glomex PLayer", "Shutdown");
+        executionManager.shutdown();
+        player.shutdown(); // mock: remove
+    }
+
+    // mock: remove it
+    private JavaFXPlayer player;
+
+    // mock: remove it
+    void mockPlayer() {
         dispatcher.playbackController(new PlaybackControl() {
-            JavaFXPlayer player;
+            //            JavaFXPlayer player;
             public void play() {
                 if (player == null) {
                     player = new JavaFXPlayer();
@@ -60,32 +110,6 @@ public class GlomexPlayer implements PlayerAPI {
     // mock: remove it
     public void addEventLogger(EventLogger logger) {
         eventHandler.addLogger(logger);
-    }
-
-    @Override
-    public EtcControl etcController() {
-        return etcController;
-    }
-
-    @Override @Provides
-    public SubscribeControl subscribeManager() {
-        return subscribeManager;
-    }
-
-    // no sense in action dispatcher - playlist manager is always the same
-    @Override
-    public PlaylistControl playlistManager() {
-        return playlistManager;
-    }
-
-    @Override
-    public PlaybackControl playbackController() {
-        return dispatcher.playbackController();
-    }
-
-    @Provides
-    protected EventHandler eventHandler() {
-        return eventHandler;
     }
 
 }

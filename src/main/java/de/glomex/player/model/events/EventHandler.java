@@ -1,10 +1,11 @@
 package de.glomex.player.model.events;
 
-import com.google.inject.Inject;
 import de.glomex.player.api.events.ListenerTag;
 import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.api.ExecutionManager;
+import de.glomex.player.model.api.Logging;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,8 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 /**
@@ -44,26 +43,29 @@ import java.util.logging.Logger;
  */
 public class EventHandler {
 
-    public static final Logger log = Logger.getLogger(EventHandler.class.getName());
+    private static final Logger log = Logging.getLogger(EventHandler.class);
 
     static final Class[] types = new Class[] {PlaylistListener.class, LifecycleListener.class, PlaybackListener.class};
 
     @SuppressWarnings("unchecked")
     static final List<Class<? extends ListenerTag>> listenerTypes = Arrays.asList(types);
 
-    // todo: move this to Player level, to be shared
-    private final int THREADS = 5;
-    private final Executor executor = Executors.newFixedThreadPool(THREADS);
-
-    private final ListenerTag proxyListener;
-    private SubscribeManager subscribeManager;
+    private final SubscribeManager subscribeManager;
+    private final ExecutionManager executor;
 
     private final List<EventLogger> loggers = new ArrayList<>();
+    private final ListenerTag proxyListener;
     private final EventTracker eventTracker;
 
-    public EventHandler(SubscribeManager subscribeManager) {
+    public EventHandler(
+        @NotNull SubscribeManager subscribeManager,
+        @NotNull ExecutionManager executor
+    ) {
         this.subscribeManager = subscribeManager;
-        this.eventTracker = new EventTracker(); // fixme: implement tracker
+        this.executor = executor;
+
+        eventTracker = new EventTracker();
+
         proxyListener = (ListenerTag) Proxy.newProxyInstance(
             Thread.currentThread().getContextClassLoader(),
             types,
@@ -75,17 +77,23 @@ public class EventHandler {
         loggers.add(logger);
     }
 
+    public @NotNull PlaylistListener playlistListener() {
+        return listener(PlaylistListener.class);
+    }
+
+    public @NotNull PlaybackListener playbackListener() {
+        return listener(PlaybackListener.class);
+    }
+
     @SuppressWarnings("unchecked")
-    @NotNull
-    public <L extends ListenerTag> L listener(@NotNull Class<L> type) {
+    public @NotNull <L extends ListenerTag> L listener(@NotNull Class<L> type) {
         // should be assert - this is internal development error
         if (listenerTypes.contains(type))
             return (L) proxyListener;
         throw new IllegalStateException("Listener type " + type.getName() + " isn't supported");
     }
 
-    @Nullable
-    private Object invocationHandler(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
+    private @Nullable Object invocationHandler(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
         // improve: do we need to block this until everything is completed?...
 
         String message = createLogMessage(method, args);

@@ -1,6 +1,7 @@
 package de.glomex.player.api.playlist;
 
 import de.glomex.player.api.events.ListenerTag;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by <b>me@olexxa.com</b>
@@ -10,7 +11,7 @@ public interface PlaylistListener extends ListenerTag {
 
     void onChanged();
 
-    void onNext(MediaID mediaID);
+    void onNext(@NotNull MediaID mediaID);
 
     void onFinished();
 

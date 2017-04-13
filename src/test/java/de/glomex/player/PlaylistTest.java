@@ -1,10 +1,18 @@
 package de.glomex.player;
 
+import de.glomex.player.api.events.ListenerTag;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.api.EtcController;
+import de.glomex.player.model.api.ExecutionManager;
+import de.glomex.player.model.api.GlomexPlayer;
+import de.glomex.player.model.events.EventHandler;
+import de.glomex.player.model.events.SubscribeManager;
+import de.glomex.player.model.lifecycle.LifecycleManager;
 import de.glomex.player.model.media.MediaUUID;
 import de.glomex.player.model.playlist.PlaylistManager;
 import junit.framework.TestCase;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 
@@ -15,7 +23,7 @@ public class PlaylistTest extends TestCase {
 
     class MockPlaylistListener implements PlaylistListener {
         public void onChanged() {}
-        public void onNext(MediaID mediaID) { current = mediaID; }
+        public void onNext(@NotNull MediaID mediaID) { current = mediaID; }
         public void onFinished() {}
     }
 
@@ -25,7 +33,14 @@ public class PlaylistTest extends TestCase {
         c = new MediaUUID(),
         d = new MediaUUID();
 
-    final PlaylistManager playlist = new PlaylistManager(new MockPlaylistListener());
+    final PlaylistManager playlist = new PlaylistManager(new MockPlaylistListener()) {
+        @SuppressWarnings("ConstantConditions")
+        @Override
+        protected LifecycleManager createLifecycleManager() {
+            GlomexPlayer player = new GlomexPlayer();
+            return new LifecycleManager(player.executionManager(), (EtcController) player.etcController(), player.eventHandler());
+        }
+    };
 
     MediaID current;
 

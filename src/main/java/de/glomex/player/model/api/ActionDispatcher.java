@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class ActionDispatcher {
 
-    private static final Logger log = Logger.getLogger(ActionDispatcher.class.getName());
+    private static final Logger log = Logging.getLogger(ActionDispatcher.class);
 
     private final Object lock = new Object();
 

@@ -1,5 +1,6 @@
 package de.glomex.player.model.events;
 
+import de.glomex.player.model.api.Logging;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.logging.Logger;
@@ -9,9 +10,10 @@ import java.util.logging.Logger;
  */
 public class EventTracker {
 
-    private static final Logger log = Logger.getLogger(EventTracker.class.getName());
+    private static final Logger log = Logging.getLogger(EventTracker.class);
 
     public void trackEvent(@NotNull String message) {
+        // fixme: implement tracking
         log.fine(message);
     }
 

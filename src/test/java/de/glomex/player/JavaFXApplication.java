@@ -9,6 +9,7 @@ import de.glomex.player.model.lifecycle.AdMetaData;
 import de.glomex.player.model.media.MediaMetadata;
 import de.glomex.player.model.media.MediaUUID;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -48,6 +49,8 @@ public class JavaFXApplication extends Application {
         ads.add(new AdMetaData(){{ metadataURL = preRollAD; position = AdPosition.preRoll; }});
         ads.add(new AdMetaData(){{ metadataURL = secondAD; time = 5 * 1000l; }});
 
+        Platform.setImplicitExit(true);
+
         PlayerFactory.<Stage, Node>createPlayerAPI(
             stage, true,
             (api, playerComponent) -> {
@@ -65,7 +68,12 @@ public class JavaFXApplication extends Application {
                 api.playlistManager().addContent(clipID);
                 api.playlistManager().skipTo(clipID);
                 api.playbackController().play();
-                //api.destroy(() -> System.out.print("Kill it"));
+
+                stage.setOnCloseRequest((event) -> {
+                    api.etcController().shutdown(() -> {
+                    });
+                    Platform.exit();
+                });
             }
         );
     }

@@ -10,6 +10,11 @@ import org.jetbrains.annotations.NotNull;
 @SuppressWarnings("unused")
 public interface LifecycleListener extends ListenerTag {
 
+    void onMediaResolved(@NotNull MediaID contentID);
+
+    void onAdResolved(@NotNull MediaID contentID);
+
+
     void onContentStarted(@NotNull MediaID contentID);
 
     void onContentCompleted(@NotNull MediaID contentID);

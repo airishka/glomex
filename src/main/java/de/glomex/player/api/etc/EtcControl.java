@@ -21,6 +21,6 @@ public interface EtcControl extends ControlTag {
 
     void setAutoPlay(boolean state);
 
-    void destroy(@Nullable Runnable callback);
+    void shutdown(@Nullable Callback callback);
 
 }

@@ -39,7 +39,7 @@ public class JavaFXPlayer extends PlayerAdapter {
         });
 //        player.setOnPlaying(() -> playing = true);
 //        player.setOnPaused(() -> playing = false);
-//        player.setOnEndOfMedia(stage::destroy);
+//        player.setOnEndOfMedia(stage::shutdown);
         player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
         mediaView.setMediaPlayer(player);
     }
@@ -72,4 +72,11 @@ public class JavaFXPlayer extends PlayerAdapter {
     public double getPosition() {
         return player != null? player.getCurrentTime().toMillis() : 0;
     }
+
+    @Override
+    public void shutdown() {
+        player.dispose();
+        player = null;
+    }
+
 }

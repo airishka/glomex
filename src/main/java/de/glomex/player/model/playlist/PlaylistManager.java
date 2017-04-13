@@ -1,8 +1,10 @@
 package de.glomex.player.model.playlist;
 
+import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.lifecycle.LifecycleManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,21 +35,21 @@ public class PlaylistManager implements PlaylistControl {
 
     private enum Status {nonPlayed, isBeingPlayed, played}
 
+    private final PlaylistListener playlistListener;
+
     private final Object lock = new Object();
 
     private boolean repeatable;
     private boolean random;
 
-    private final PlaylistListener playlistListener;
-
     private final List<MediaID> playlist = new ArrayList<>();
     private final Map<MediaID, Status> statuses = new HashMap<>(); // statuses are needed because history size is limited
     private final Deque<MediaID> history = new ArrayDeque<>();
 
-    @Nullable private MediaID current;
-    @Nullable private LifecycleManager lifecycleManager;
+    private @Nullable MediaID current;
+    private @Nullable LifecycleManager lifecycleManager;
 
-    public PlaylistManager(PlaylistListener playlistListener) {
+    public PlaylistManager(@NotNull PlaylistListener playlistListener) {
         this.playlistListener = playlistListener;
     }
 
@@ -64,6 +66,11 @@ public class PlaylistManager implements PlaylistControl {
     // fixme: mock method, remove it
     public MediaID currentContent() {
         return current;
+    }
+
+    // fixme: remove container dependency
+    protected LifecycleManager createLifecycleManager() {
+        return GlomexPlayerFactory.injector.getInstance(LifecycleManager.class);
     }
 
     @Override
@@ -102,7 +109,7 @@ public class PlaylistManager implements PlaylistControl {
             history.clear();
             if (current != null) {
                 // noinspection ConstantConditions
-                lifecycleManager.destroy();
+                lifecycleManager.shutdown();
                 lifecycleManager = null;
             }
             current = null;
@@ -162,14 +169,14 @@ public class PlaylistManager implements PlaylistControl {
             }
 
             // noinspection ConstantConditions
-            lifecycleManager.destroy();
+            lifecycleManager.shutdown();
             lifecycleManager = null;
         }
 
         current = coming;
         statuses.put(coming, Status.isBeingPlayed);
 
-        lifecycleManager = new LifecycleManager();
+        lifecycleManager = createLifecycleManager();
         lifecycleManager.open(coming);
 
         playlistListener.onNext(coming);

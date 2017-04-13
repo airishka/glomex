@@ -14,4 +14,6 @@ public abstract class PlayerAdapter implements PlaybackControl, MediaControl {
     protected boolean canPushTicks;
 
     public PlaybackListener eventListener;
+
+    public abstract void shutdown();
 }
