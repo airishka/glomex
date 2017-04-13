@@ -75,8 +75,7 @@ public class LifecycleManager {
     }
 
     public Lifecycle lifecycle() {
-        // fixme: add states: a) futures set - is being resolved, b) futures null, content null - errors, c) futures null, content not null - completedd
-        return obtainLifecycle();
+        return mediaFuture != null || adsFuture != null? obtainLifecycle() : lifecycle;
     }
 
     private Lifecycle obtainLifecycle() {

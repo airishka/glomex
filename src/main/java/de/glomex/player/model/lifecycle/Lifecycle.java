@@ -33,6 +33,10 @@ public class Lifecycle {
             .collect(Collectors.toList());
     }
 
+    public boolean ready() {
+        return media != null && ads != null;
+    }
+
     // must be only called when media is obtained
     public void resolve() {
         //noinspection ConstantConditions
