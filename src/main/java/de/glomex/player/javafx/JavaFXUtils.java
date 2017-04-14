@@ -66,7 +66,6 @@ public class JavaFXUtils {
         private boolean suppressCommands;
 
         public ImprovedButton(Image onImage, Image offImage, Runnable onFunction, Runnable offFunction) {
-            setSelected(true);
             ImageView toggleImage = new ImageView();
             toggleImage.setPreserveRatio(true);
             toggleImage.setFitWidth(32);
@@ -108,8 +107,8 @@ public class JavaFXUtils {
 
                 Text positionWidget = new Text();
                 ImprovedButton playBtn = new ImprovedButton(
+                    new Image(cl.getResourceAsStream("pause.png")),
                     new Image(cl.getResourceAsStream("play.png")),
-                    new Image(cl.getResourceAsStream("stop.png")),
                     playbackControl::play,
                     playbackControl::pause
                 );

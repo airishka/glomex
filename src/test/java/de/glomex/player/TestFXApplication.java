@@ -1,21 +1,14 @@
 package de.glomex.player;
 
 import de.glomex.player.api.PlayerAPI;
-import de.glomex.player.api.PlayerFactory;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.AdPosition;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.javafx.JavaFXApplication;
-import de.glomex.player.javafx.JavaFXUtils;
 import de.glomex.player.model.lifecycle.AdMetaData;
 import de.glomex.player.model.media.MediaMetadata;
 import de.glomex.player.model.media.MediaUUID;
-import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
@@ -46,8 +39,8 @@ public class TestFXApplication extends JavaFXApplication {
 
     @Override
     public void initializeAPI(@NotNull PlayerAPI api, @NotNull Node playerComponent) {
-        api.etcController().requestFullScreen();
-        api.etcController().setAutoPlay(true);
+//        api.etcController().requestFullScreen();
+//        api.etcController().setAutoPlay(true);
 
         api.etcController().mediaResolver(mediaID -> new MediaMetadata(mediaID, url));
         api.etcController().adResolver(mediaID -> ads);

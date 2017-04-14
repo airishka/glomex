@@ -4,7 +4,6 @@ import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.player.PlayerAdapter;
-import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -12,11 +11,11 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.management.PlatformLoggingMXBean;
-import java.util.Map;
 import java.util.logging.Logger;
 
 /**
+ * Features: support markers.
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class JavaFXPlayer extends PlayerAdapter {
@@ -52,10 +51,11 @@ public class JavaFXPlayer extends PlayerAdapter {
                 if (fullscreen)
                     stage.setFullScreen(true);
                 if (autoplay)
-                    player.play();
+                    play();
             });
             player.setOnPlaying(() -> playing = true);
             player.setOnPaused(() -> playing = false);
+            player.setOnStalled(() -> log.finest("buffering")); // mock: for debug
             // mock: fixme!!!! must call upper component, not the PL manager
             player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
             mediaView.setMediaPlayer(player);
