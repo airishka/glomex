@@ -36,9 +36,6 @@ public class GlomexPlayer implements PlayerAPI {
         eventHandler = new EventHandler(subscribeManager, executionManager);
         etcController = new EtcController(this);
         playlistManager = new PlaylistManager(eventHandler.playlistListener());
-
-//        actionDispatcher.playbackController(new PlaybackControllerAdapter());
-        //mockPlayer(); // mock: remove it
     }
 
     public @NotNull ExecutionManager executionManager() {
