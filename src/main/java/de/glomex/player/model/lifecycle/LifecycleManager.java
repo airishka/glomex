@@ -36,7 +36,7 @@ public class LifecycleManager {
     private Future<MediaData> mediaFuture;
     private Future<List<AdData>> adsFuture;
 
-    private Lifecycle lifecycle;
+    public Lifecycle lifecycle; // fixme
 
     @Inject
     public LifecycleManager(
@@ -152,7 +152,8 @@ public class LifecycleManager {
 
             public void pause() {
                 super.pause();
-                player.pause();
+                if (player != null)
+                    player.pause();
             }
 
             public void seek(long position) {
@@ -166,43 +167,43 @@ public class LifecycleManager {
     }
 
 
-    public Lifecycle lifecycle() {
-        return lifecycle.ready()? lifecycle : obtainLifecycle();
-    }
+//    public Lifecycle lifecycle() {
+//        return lifecycle.ready()? lifecycle : obtainLifecycle();
+//    }
 
-    private Lifecycle obtainLifecycle() {
-        try {
-            lifecycle.media = mediaFuture.get();
-            lifecycleListener.onMediaResolved(lifecycle.mediaID);
-        } catch (InterruptedException interrupted) {
-            log.fine("Getting media interrupted " + lifecycle.mediaID);
-            cancelAdsFetch();
-            return lifecycle;
-        } catch (ExecutionException error) {
-            log.severe("Error getting media " + lifecycle.mediaID + ": " + error.getCause().getMessage());
-            cancelAdsFetch();
-            return lifecycle;
-        } finally {
-            mediaFuture = null;
-        }
-
-        // check for ads
-        try {
-            lifecycle.ads(adsFuture.get());
-            lifecycleListener.onAdsResolved(lifecycle.mediaID);
-        } catch (InterruptedException interrupted) {
-            log.fine("Getting ads interrupted " + lifecycle.mediaID);
-        } catch (ExecutionException error) {
-            log.warning("Error getting ads " + lifecycle.mediaID + ": " + error.getCause().getMessage());
-            log.warning("Skipping ads");
-        } finally {
-            adsFuture = null;
-        }
-
-        lifecycle.resolve();
-        log.finest(Arrays.toString(lifecycle.stops().toArray()));
-
-        return lifecycle;
-    }
+//    private Lifecycle obtainLifecycle() {
+//        try {
+//            lifecycle.media = mediaFuture.get();
+//            lifecycleListener.onMediaResolved(lifecycle.mediaID);
+//        } catch (InterruptedException interrupted) {
+//            log.fine("Getting media interrupted " + lifecycle.mediaID);
+//            cancelAdsFetch();
+//            return lifecycle;
+//        } catch (ExecutionException error) {
+//            log.severe("Error getting media " + lifecycle.mediaID + ": " + error.getCause().getMessage());
+//            cancelAdsFetch();
+//            return lifecycle;
+//        } finally {
+//            mediaFuture = null;
+//        }
+//
+//        check for ads
+//        try {
+//            lifecycle.ads(adsFuture.get());
+//            lifecycleListener.onAdsResolved(lifecycle.mediaID);
+//        } catch (InterruptedException interrupted) {
+//            log.fine("Getting ads interrupted " + lifecycle.mediaID);
+//        } catch (ExecutionException error) {
+//            log.warning("Error getting ads " + lifecycle.mediaID + ": " + error.getCause().getMessage());
+//            log.warning("Skipping ads");
+//        } finally {
+//            adsFuture = null;
+//        }
+//
+//        lifecycle.resolve();
+//        log.finest(Arrays.toString(lifecycle.stops().toArray()));
+//
+//        return lifecycle;
+//    }
 
 }

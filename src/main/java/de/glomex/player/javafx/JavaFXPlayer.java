@@ -25,6 +25,7 @@ public class JavaFXPlayer extends PlayerAdapter {
         this.stage = JavaFXPlayerFactory.stage;
         this.mediaView = JavaFXPlayerFactory.mediaView;
         autoplay = true;
+        stage.setFullScreen(true);
     }
 
     @Override
