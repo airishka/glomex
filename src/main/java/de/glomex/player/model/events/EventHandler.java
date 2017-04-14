@@ -85,6 +85,10 @@ public class EventHandler {
         return listener(PlaybackListener.class);
     }
 
+    public @NotNull LifecycleListener lifecycleListener() {
+        return listener(LifecycleListener.class);
+    }
+
     @SuppressWarnings("unchecked")
     public @NotNull <L extends ListenerTag> L listener(@NotNull Class<L> type) {
         // should be assert - this is internal development error

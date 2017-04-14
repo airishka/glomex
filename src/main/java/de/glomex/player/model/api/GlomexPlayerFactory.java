@@ -4,6 +4,8 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.glomex.player.api.etc.EtcControl;
+import de.glomex.player.api.lifecycle.LifecycleListener;
+import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.events.EventHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,10 +25,15 @@ public class GlomexPlayerFactory {
         @Override
         protected void configure() {
             bind(GlomexPlayer.class).toInstance(glomexPlayer);
+            bind(ExecutionManager.class).toInstance(glomexPlayer.executionManager());
+
+            bind(ActionDispatcher.class).toInstance(glomexPlayer.actionDispatcher());
+            bind(EventHandler.class).toInstance(glomexPlayer.eventHandler());
+
             bind(EtcControl.class).toInstance(glomexPlayer.etcController());
             bind(EtcController.class).toInstance((EtcController) glomexPlayer.etcController());
-            bind(EventHandler.class).toInstance(glomexPlayer.eventHandler());
-            bind(ExecutionManager.class).toInstance(glomexPlayer.executionManager());
+            bind(LifecycleListener.class).toInstance(glomexPlayer.eventHandler().lifecycleListener());
+            bind(PlaybackListener.class).toInstance(glomexPlayer.eventHandler().playbackListener());
         }
     }
 

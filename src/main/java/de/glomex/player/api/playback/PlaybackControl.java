@@ -12,8 +12,8 @@ public interface PlaybackControl extends ControlTag {
 
     void pause();
 
-    void seek (double position);
+    void seek (long position);
 
-    double getPosition();
+    long getPosition();
 
 }

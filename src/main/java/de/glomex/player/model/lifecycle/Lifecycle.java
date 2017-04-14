@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
+ * Nulls - mean not fetched
+ * No ad - empty list.
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class Lifecycle {
@@ -33,10 +36,6 @@ public class Lifecycle {
             .collect(Collectors.toList());
     }
 
-    public boolean ready() {
-        return media != null && ads != null;
-    }
-
     // must be only called when media is obtained
     public void resolve() {
         //noinspection ConstantConditions
@@ -56,4 +55,7 @@ public class Lifecycle {
         return ads.stream().map(AdMetaData::time).collect(Collectors.toList());
     }
 
+    public boolean ready() {
+        return media != null && ads != null;
+    }
 }

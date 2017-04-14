@@ -1,6 +1,5 @@
 package de.glomex.player.model.playlist;
 
-import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
@@ -63,11 +62,6 @@ public class PlaylistManager implements PlaylistControl {
         repeatable = state;
     }
 
-    // fixme: mock method, remove it
-    public MediaID currentContent() {
-        return current;
-    }
-
     @Override
     public void addContent(@NotNull MediaID... medias) {
         // public API, so caller may ignore @NotNull
@@ -99,18 +93,27 @@ public class PlaylistManager implements PlaylistControl {
     @Override
     public void clear() {
         synchronized (lock) {
-            playlist.clear();
-            statuses.clear();
-            history.clear();
-            if (current != null) {
-                // noinspection ConstantConditions
-                lifecycleManager.shutdown();
-                lifecycleManager = null;
-            }
-            current = null;
+            cleanup();
         }
         playlistListener.onChanged();
     }
+
+    public void shutdown() {
+        cleanup();
+    }
+
+    private void cleanup() {
+        playlist.clear();
+        statuses.clear();
+        history.clear();
+        if (current != null) {
+            // noinspection ConstantConditions
+            lifecycleManager.shutdown();
+            lifecycleManager = null;
+        }
+        current = null;
+    }
+
 
     @Override
     public void shuffle() {

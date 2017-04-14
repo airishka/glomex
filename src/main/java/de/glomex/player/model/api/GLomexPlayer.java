@@ -11,6 +11,7 @@ import de.glomex.player.javafx.JavaFXPlayer;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.EventLogger;
 import de.glomex.player.model.events.SubscribeManager;
+import de.glomex.player.model.playback.PlaybackController;
 import de.glomex.player.model.playlist.PlaylistManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -28,18 +29,29 @@ public class GlomexPlayer implements PlayerAPI {
     private final SubscribeManager subscribeManager;
 
     private final ExecutionManager executionManager;
-    private final ActionDispatcher dispatcher;
+    private final ActionDispatcher actionDispatcher;
     private final EventHandler eventHandler;
 
     public GlomexPlayer() {
         executionManager = new ExecutionManager();
-        dispatcher = new ActionDispatcher();
+        actionDispatcher = new ActionDispatcher();
         subscribeManager = new SubscribeManager();
         eventHandler = new EventHandler(subscribeManager, executionManager);
         etcController = new EtcController(this);
         playlistManager = new PlaylistManager(eventHandler.playlistListener());
 
-        mockPlayer(); // mock: remove it
+        actionDispatcher.playbackController(new PlaybackController());
+        //mockPlayer(); // mock: remove it
+    }
+
+    public @NotNull ExecutionManager executionManager() {
+        return executionManager;
+    }
+
+    public @NotNull ActionDispatcher actionDispatcher() { return actionDispatcher; }
+
+    public @NotNull EventHandler eventHandler() {
+        return eventHandler;
     }
 
     @Override
@@ -59,49 +71,13 @@ public class GlomexPlayer implements PlayerAPI {
 
     @Override
     public @NotNull PlaybackControl playbackController() {
-        return dispatcher.playbackController();
-    }
-
-    public @NotNull EventHandler eventHandler() {
-        return eventHandler;
-    }
-
-    public @NotNull ExecutionManager executionManager() {
-        return executionManager;
+        return actionDispatcher.playbackProxy();
     }
 
     void shutdown() {
         log.entering("Glomex Player", "shutdown");
         executionManager.shutdown();
-        player.shutdown(); // mock: remove
-    }
-
-    // mock: remove it
-    private JavaFXPlayer player;
-
-    // mock: remove it
-    void mockPlayer() {
-        dispatcher.playbackController(new PlaybackControl() {
-            //            JavaFXPlayer player;
-            public void play() {
-                if (player == null) {
-                    player = new JavaFXPlayer();
-                    player.eventListener = eventHandler.listener(PlaybackListener.class);
-                    MediaData media = etcController.mediaResolver().resolve(playlistManager.currentContent());
-                    player.openMedia(media);
-                } else
-                    player.play();
-            }
-            public void pause() {
-                player.pause();
-            }
-            public void seek(double position) {
-                player.seek(position);
-            }
-            public double getPosition() {
-                return player.getPosition();
-            }
-        });
+        playlistManager.shutdown();
     }
 
     // mock: remove it

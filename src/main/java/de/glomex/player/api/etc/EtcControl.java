@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Created by <b>me@olexxa.com</b>
  */
+@SuppressWarnings("unused")
 public interface EtcControl extends ControlTag {
 
     /* Set media resolver */

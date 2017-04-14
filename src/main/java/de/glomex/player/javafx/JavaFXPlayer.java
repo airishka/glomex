@@ -8,6 +8,8 @@ import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
+import java.util.Map;
+
 /**
  * Created by <b>me@olexxa.com</b>
  */
@@ -61,7 +63,7 @@ public class JavaFXPlayer extends PlayerAdapter {
     }
 
     @Override
-    public void seek(double position) {
+    public void seek(long position) {
         if (player != null) {
             eventListener.onSeek(position);
             player.seek(new Duration(position));
@@ -69,8 +71,8 @@ public class JavaFXPlayer extends PlayerAdapter {
     }
 
     @Override
-    public double getPosition() {
-        return player != null? player.getCurrentTime().toMillis() : 0;
+    public long getPosition() {
+        return player != null? Math.round(player.getCurrentTime().toMillis()) : 0;
     }
 
     @Override

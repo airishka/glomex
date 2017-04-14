@@ -18,6 +18,7 @@ public class EtcController implements EtcControl {
 
     private MediaResolver mediaResolver;
     private AdResolver adResolver;
+    private boolean autoplay;
 
     public EtcController(@NotNull GlomexPlayer glomexPlayer) {
         this.glomexPlayer = glomexPlayer;
@@ -35,7 +36,11 @@ public class EtcController implements EtcControl {
 
     @Override
     public void setAutoPlay(boolean state) {
-        throw new IllegalStateException("FIXME: Not implemented"); // fixme
+        autoplay = state;
+    }
+
+    public boolean autoplay() {
+        return autoplay;
     }
 
     @Override
@@ -50,13 +55,13 @@ public class EtcController implements EtcControl {
         this.mediaResolver = mediaResolver;
     }
 
+    public @NotNull MediaResolver mediaResolver() {
+        return mediaResolver;
+    }
+
     @Override
     public void adResolver(@NotNull AdResolver adResolver) {
         this.adResolver = adResolver;
-    }
-
-    public @NotNull  MediaResolver mediaResolver() {
-        return mediaResolver;
     }
 
     public @NotNull AdResolver adResolver() {
