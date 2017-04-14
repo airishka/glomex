@@ -2,8 +2,10 @@ package de.glomex.player.javafx;
 
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.PlayerFactory;
+import de.glomex.player.model.api.Logging;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -11,6 +13,7 @@ import javafx.stage.Stage;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
+import java.util.logging.Logger;
 
 /**
  * Example of 3rd party APP.
@@ -21,6 +24,8 @@ import java.net.MalformedURLException;
  * Created by <b>me@olexxa.com</b>
  */
 public class JavaFXApplication extends Application {
+
+    private static final Logger log = Logging.getLogger(JavaFXApplication.class);
 
     @Override
     public void start(@NotNull Stage stage) throws Exception {
@@ -43,9 +48,7 @@ public class JavaFXApplication extends Application {
                 );
                 Scene scene = new Scene(pane);
                 stage.setScene(scene);
-                stage.setOnCloseRequest((event) -> {
-                    api.etcController().shutdown(Platform::exit);
-                });
+                stage.setOnCloseRequest((event) -> api.etcController().shutdown(Platform::exit));
                 stage.show();
 
                 initializeAPI(api, playerComponent);

@@ -2,7 +2,9 @@ package de.glomex.player.javafx;
 
 import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackListener;
+import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.player.PlayerAdapter;
+import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
@@ -10,12 +12,16 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.management.PlatformLoggingMXBean;
 import java.util.Map;
+import java.util.logging.Logger;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
 public class JavaFXPlayer extends PlayerAdapter {
+
+    private static final Logger log = Logging.getLogger(JavaFXPlayer.class);
 
     private final Stage stage;
     private final MediaView mediaView;
@@ -36,47 +42,51 @@ public class JavaFXPlayer extends PlayerAdapter {
     @Override
     public void openMedia(@NotNull MediaData mediaData) {
         // New player object must be created for each new media
-        Media media = new Media(mediaData.url().toExternalForm());
-        player = new MediaPlayer(media);
-        player.setAutoPlay(autoplay);
-        if (fullscreen)
-            stage.setFullScreen(true);
-        player.setOnReady(() -> {
-            if (!fullscreen) {
+        JavaFXUtils.ensureFxThread(() -> {
+            Media media = new Media(mediaData.url().toExternalForm());
+            player = new MediaPlayer(media);
+            player.setAutoPlay(autoplay);
+            player.setOnReady(() -> {
                 stage.sizeToScene();
                 stage.centerOnScreen();
-            }
-            if (autoplay)
-                player.play();
+                if (fullscreen)
+                    stage.setFullScreen(true);
+                if (autoplay)
+                    player.play();
+            });
+            player.setOnPlaying(() -> playing = true);
+            player.setOnPaused(() -> playing = false);
+            // mock: fixme!!!! must call upper component, not the PL manager
+            player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
+            mediaView.setMediaPlayer(player);
         });
-        player.setOnPlaying(() -> playing = true);
-        player.setOnPaused(() -> playing = false);
-        player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
-        mediaView.setMediaPlayer(player);
     }
 
     @Override
     public void play() {
-        if (player != null) {
-            eventListener.onPlay();
-            player.play();
-        }
+        if (player != null)
+            JavaFXUtils.ensureFxThread( () -> {
+                eventListener.onPlay();
+                player.play();
+            });
     }
 
     @Override
     public void pause() {
-        if (player != null) {
-            eventListener.onPause();
-            player.pause();
-        }
+        if (player != null)
+            JavaFXUtils.ensureFxThread( () -> {
+                eventListener.onPause();
+                player.pause();
+            });
     }
 
     @Override
     public void seek(long position) {
-        if (player != null) {
-            eventListener.onSeek(position);
-            player.seek(new Duration(position));
-        }
+        if (player != null)
+            JavaFXUtils.ensureFxThread( () -> {
+                eventListener.onSeek(position);
+                player.seek(new Duration(position));
+            });
     }
 
     @Override
@@ -91,8 +101,11 @@ public class JavaFXPlayer extends PlayerAdapter {
 
     @Override
     public void shutdown() {
-        player.dispose();
-        player = null;
+        if (player != null)
+            JavaFXUtils.ensureFxThread( () -> {
+                player.dispose();
+                player = null;
+            });
     }
 
 }

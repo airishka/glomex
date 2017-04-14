@@ -46,7 +46,9 @@ public class TestFXApplication extends JavaFXApplication {
 
     @Override
     public void initializeAPI(@NotNull PlayerAPI api, @NotNull Node playerComponent) {
-        //api.requestFullScreen();
+        api.etcController().requestFullScreen();
+        api.etcController().setAutoPlay(true);
+
         api.etcController().mediaResolver(mediaID -> new MediaMetadata(mediaID, url));
         api.etcController().adResolver(mediaID -> ads);
         api.playlistManager().addContent(clipID);

@@ -1,8 +1,10 @@
 package de.glomex.player.javafx;
 
+import de.glomex.player.api.etc.Callback;
 import de.glomex.player.api.events.SubscribeControl;
 import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playback.PlaybackListener;
+import de.glomex.player.model.api.Logging;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -13,11 +15,16 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.logging.Logger;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
 public class JavaFXUtils {
+
+    private static final Logger log = Logging.getLogger(JavaFXUtils.class);
 
     static class JavaFXPlaybackListener implements PlaybackListener {
 
@@ -31,7 +38,7 @@ public class JavaFXUtils {
 
         @Override
         public void onPlay() {
-            Platform.runLater( () -> {
+            ensureFxThread( () -> {
                 playBtn.suppressCommands = true;
                 playBtn.setSelected(true);
                 playBtn.suppressCommands = false;
@@ -40,7 +47,7 @@ public class JavaFXUtils {
 
         @Override
         public void onPause() {
-            Platform.runLater( () -> {
+            ensureFxThread( () -> {
                 playBtn.suppressCommands = true;
                 playBtn.setSelected(false);
                 playBtn.suppressCommands = false;
@@ -49,7 +56,7 @@ public class JavaFXUtils {
 
         @Override
         public void onSeek(double position) {
-            Platform.runLater( () -> positionWidget.setText("At " + position) );
+            ensureFxThread( () -> positionWidget.setText("At " + position) );
         }
 
     }
@@ -116,4 +123,10 @@ public class JavaFXUtils {
         return layout;
     }
 
+    public static void ensureFxThread(@NotNull Callback action) {
+        if (Platform.isFxApplicationThread())
+            action.callback();
+        else
+            Platform.runLater(action::callback);
+    }
 }
