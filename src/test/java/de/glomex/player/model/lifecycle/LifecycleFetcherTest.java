@@ -1,47 +1,87 @@
 package de.glomex.player.model.lifecycle;
 
-import de.glomex.player.api.playlist.MediaID;
-import de.glomex.player.model.api.EtcController;
-import de.glomex.player.model.api.GlomexPlayer;
+import de.glomex.player.model.PlayerTestCase;
 import de.glomex.player.model.api.GlomexPlayerFactory;
-import de.glomex.player.model.lifecycle.LifecycleFetcher;
-import de.glomex.player.model.media.MediaMetadata;
-import de.glomex.player.model.media.MediaUUID;
-import junit.framework.TestCase;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class LifecycleFetcherTest extends TestCase {
+public class LifecycleFetcherTest extends PlayerTestCase {
 
-    GlomexPlayer glomexPlayer;
-    EtcController etcController;
     LifecycleFetcher fetcher;
-
-    final MediaID mediaID = new MediaUUID();
-    final URL mediaURL = new URL("http://olexa.com/1.avi");
 
     public LifecycleFetcherTest() throws MalformedURLException {}
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        glomexPlayer = GlomexPlayerFactory.create();
-        etcController = GlomexPlayerFactory.instance(EtcController.class);
         fetcher = GlomexPlayerFactory.instance(LifecycleFetcher.class);
     }
 
-    public void testFetcher() {
-        etcController.mediaResolver( (mediaID) -> new MediaMetadata(mediaID, mediaURL));
-        etcController.adResolver( (mediaID) -> { throw new IllegalArgumentException("Test excception"); });
+    public void testNormal() throws InterruptedException {
+        etcController.mediaResolver( (mediaID) -> media );
+        etcController.adResolver( (mediaID) -> Collections.emptyList() );
 
+        CountDownLatch latch = new CountDownLatch(1);
         fetcher.startFetching(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
-            assertNull(lifecycle.ads())
+            assertSame(media, lifecycle.media());
+            assertSame(Collections.emptyList(), lifecycle.ads());
+            latch.countDown();
         });
+        await(latch);
     }
+
+    public void testBadAD() throws InterruptedException {
+        etcController.mediaResolver( (mediaID) -> media);
+        etcController.adResolver( (mediaID) -> { throw new IllegalArgumentException("Emulate exception for test"); });
+
+        CountDownLatch latch = new CountDownLatch(1);
+        fetcher.startFetching(mediaID, (lifecycle) -> {
+            assertNotNull(lifecycle);
+            assertEquals(mediaID, lifecycle.mediaID);
+            assertSame(media, lifecycle.media());
+            assertNull(lifecycle.ads());
+            latch.countDown();
+        });
+        await(latch);
+    }
+
+    public void testBadMedia() throws InterruptedException {
+        etcController.mediaResolver( mediaID -> { throw new IllegalArgumentException("Emulate exception for test"); });
+        etcController.adResolver( mediaID -> { sleep(); return Collections.emptyList(); } );
+
+        CountDownLatch latch = new CountDownLatch(1);
+        fetcher.startFetching(mediaID, (lifecycle) -> {
+            assertNotNull(lifecycle);
+            assertEquals(mediaID, lifecycle.mediaID);
+            assertNull(lifecycle.media());
+            assertNull(lifecycle.ads());
+            latch.countDown();
+        });
+        await(latch);
+    }
+
+    private void await(CountDownLatch latch) {
+        try {
+            latch.await(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            fail("Haven't finished");
+        }
+    }
+
+    private void sleep() {
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(100));
+            fail("Must be interrupted");
+        } catch (InterruptedException ignored) {
+        }
+    }
+
 }

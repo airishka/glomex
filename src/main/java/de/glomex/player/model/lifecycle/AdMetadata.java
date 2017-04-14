@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import java.net.URL;
 
 /**
+ * TODO: add priority
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class AdMetaData implements AdData {

@@ -1,12 +1,14 @@
 package de.glomex.player.javafx;
 
 import de.glomex.player.api.lifecycle.MediaData;
+import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.player.PlayerAdapter;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
@@ -19,30 +21,36 @@ public class JavaFXPlayer extends PlayerAdapter {
     private final MediaView mediaView;
 
     MediaPlayer player;
+    private boolean playing;
 
-    public JavaFXPlayer() {
+    public JavaFXPlayer(PlaybackListener playbackListener, boolean autoplay, boolean fullscreen) {
+        eventListener = playbackListener;
+        this.autoplay = autoplay;
+        this.fullscreen = fullscreen;
+
         // mock: mocked UI, remove
         this.stage = JavaFXPlayerFactory.stage;
         this.mediaView = JavaFXPlayerFactory.mediaView;
-        autoplay = true;
-        stage.setFullScreen(true);
     }
 
     @Override
-    public void openMedia(MediaData mediaData) {
+    public void openMedia(@NotNull MediaData mediaData) {
         // New player object must be created for each new media
         Media media = new Media(mediaData.url().toExternalForm());
         player = new MediaPlayer(media);
         player.setAutoPlay(autoplay);
+        if (fullscreen)
+            stage.setFullScreen(true);
         player.setOnReady(() -> {
-            stage.sizeToScene();
-            stage.centerOnScreen();
+            if (!fullscreen) {
+                stage.sizeToScene();
+                stage.centerOnScreen();
+            }
             if (autoplay)
                 player.play();
         });
-//        player.setOnPlaying(() -> playing = true);
-//        player.setOnPaused(() -> playing = false);
-//        player.setOnEndOfMedia(stage::shutdown);
+        player.setOnPlaying(() -> playing = true);
+        player.setOnPaused(() -> playing = false);
         player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
         mediaView.setMediaPlayer(player);
     }
@@ -74,6 +82,11 @@ public class JavaFXPlayer extends PlayerAdapter {
     @Override
     public long getPosition() {
         return player != null? Math.round(player.getCurrentTime().toMillis()) : 0;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return playing;
     }
 
     @Override

@@ -67,6 +67,7 @@ public class LifecycleManagerTest extends PlayerTestCase {
         LifecycleManager lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
         lifecycleManager.open(mediaId);
 
+        // fixme: add waiting method
         Lifecycle lifecycle = lifecycleManager.lifecycle;
         assertEquals(lifecycle.stops(), stops);
     }

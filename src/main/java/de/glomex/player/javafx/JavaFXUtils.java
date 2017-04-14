@@ -3,6 +3,7 @@ package de.glomex.player.javafx;
 import de.glomex.player.api.events.SubscribeControl;
 import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playback.PlaybackListener;
+import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
@@ -30,22 +31,27 @@ public class JavaFXUtils {
 
         @Override
         public void onPlay() {
-            playBtn.suppressCommands = true;
-            playBtn.setSelected(true);
-            playBtn.suppressCommands = false;
+            Platform.runLater( () -> {
+                playBtn.suppressCommands = true;
+                playBtn.setSelected(true);
+                playBtn.suppressCommands = false;
+            });
         }
 
         @Override
         public void onPause() {
-            playBtn.suppressCommands = true;
-            playBtn.setSelected(false);
-            playBtn.suppressCommands = false;
+            Platform.runLater( () -> {
+                playBtn.suppressCommands = true;
+                playBtn.setSelected(false);
+                playBtn.suppressCommands = false;
+            });
         }
 
         @Override
         public void onSeek(double position) {
-            positionWidget.setText("At " + position);
+            Platform.runLater( () -> positionWidget.setText("At " + position) );
         }
+
     }
 
     static class ImprovedButton extends ToggleButton {

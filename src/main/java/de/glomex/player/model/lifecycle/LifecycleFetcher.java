@@ -4,70 +4,74 @@ import com.google.inject.Inject;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.MediaID;
-import de.glomex.player.javafx.JavaFXPlayer;
-import de.glomex.player.model.api.ActionDispatcher;
 import de.glomex.player.model.api.EtcController;
 import de.glomex.player.model.api.ExecutionManager;
 import de.glomex.player.model.api.Logging;
-import de.glomex.player.model.playback.PlaybackControllerAdapter;
-import de.glomex.player.model.playback.WaitinglaybackController;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import java.util.logging.Logger;
 
 /**
+ * Contract for this class is:
+ *   - being given a media ID, create lifecycle object
+ *   - populate it with data obtained from resolvers, asynchronously and in protected way
+ *   - hide synchronization
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class LifecycleFetcher {
 
-    private static final Logger log = Logging.getLogger(LifecycleManager.class);
+    private static final Logger log = Logging.getLogger(LifecycleFetcher.class);
 
     private final @NotNull ExecutionManager executor;
     private final @NotNull EtcController etcController;
     private final @NotNull LifecycleListener lifecycleListener;
+
+    private final CountDownLatch latch = new CountDownLatch(2);
+    private @Nullable Consumer<Lifecycle> callback;
 
     private Future<MediaData> mediaFuture;
     private Future<List<AdData>> adsFuture;
 
     private Lifecycle lifecycle;
 
-    private final CountDownLatch latch = new CountDownLatch(2);
-
     @Inject
     public LifecycleFetcher(
         @NotNull ExecutionManager executor,
         @NotNull EtcController etcController,
-        @NotNull LifecycleListener lifecycleListener,
-        @NotNull PlaybackListener playbackListener,
-        @NotNull ActionDispatcher actionDispatcher
+        @NotNull LifecycleListener lifecycleListener
     ) {
         this.executor = executor;
         this.etcController = etcController;
         this.lifecycleListener = lifecycleListener;
     }
 
-    public void fetch(@NotNull MediaID mediaID) {
+    public void startFetching(@NotNull MediaID mediaID, @Nullable Consumer<Lifecycle> callback) {
         lifecycle = new Lifecycle(mediaID);
+        this.callback = callback;
 
         mediaFuture = executor.submit(() -> {
             MediaData mediaData = null;
             try {
                 mediaData = etcController.mediaResolver().resolve(mediaID);
-                lifecycle.media = mediaData;
+                lifecycle.media(mediaData);
                 lifecycleListener.onMediaResolved(mediaID);
-            } catch (Throwable error) {
+            } catch (RuntimeException error) {
                 log.severe("Error getting media " + mediaID + ": " + error.getMessage());
                 lifecycleListener.onMediaError(mediaID);
                 // N.B. cancel add loading if still running
-                cancelAdsFetch();
-            } finally {
+                adsFuture.cancel(true);
                 latch.countDown();
+            } finally {
+                latchDown();
             }
             return mediaData;
         });
@@ -78,85 +82,40 @@ public class LifecycleFetcher {
                 ads = etcController.adResolver().resolve(mediaID);
                 lifecycle.ads(ads);
                 lifecycleListener.onAdsResolved(mediaID);
-            } catch (Throwable error) {
+            } catch (RuntimeException error) {
                 log.warning("Error getting ads " + mediaID + ": " + error.getMessage());
                 log.warning("Skipping ads");
                 lifecycleListener.onAdError(mediaID);
             } finally {
-                latch.countDown();
+                latchDown();
             }
             return ads;
         });
+    }
 
-        // Lock this thread and wait until
-        if (etcController.autoplay())
-            playbackController.play();
+    private void latchDown() {
+        latch.countDown();
+        if (callback != null && latch.getCount() == 0)
+            callback.accept(lifecycle);
+    }
 
+    // block current thread
+    public Lifecycle lifecycle() {
         try {
-            latch.await(5, TimeUnit.SECONDS);
+            latch.await();
         } catch (InterruptedException e) {
             log.severe("Interrupted: " + e.getMessage());
         }
-
-
-
-    {
-        // fixme
-        WaitinglaybackController coming = new WaitinglaybackController();
-        PlaybackControllerAdapter previous = actionDispatcher.playbackController(coming);
-        coming.shouldPlay(previous.shouldPlay());
-    }
-
-}
-
-    // FIXME!!!!!!!!!!!!!!!!!!!!11 this is called from executor thread, FX is angry
-    // FIXME: instead: make main thread call it when ready
-    private void checkIfReady() {
-        if (!lifecycle.ready())
-            return;
-
-        // PlaybackController coming = new PlaybackController(); // fixme
-        PlaybackControllerAdapter coming = mockPlayer(); // mock: remove
-
-        PlaybackControllerAdapter previous = actionDispatcher.playbackController(coming);
-        Boolean shouldPlay = null;
-        if (previous != null)
-            shouldPlay = previous.shouldPlay();
-        if (shouldPlay == null)
-            shouldPlay = etcController.autoplay();
-
-        if (shouldPlay)
-            coming.play();
+        return lifecycle;
     }
 
     public void shutdown() {
-        cancelMediaFetch();
-        cancelAdsFetch();
-
-        PlaybackControllerAdapter coming = new PlaybackControllerAdapter();
-        PlaybackControllerAdapter previous = actionDispatcher.playbackController(coming);
-        coming.shouldPlay(previous.shouldPlay());
-
-        previous.shutdown();
-        // mock: remove
-        if (player != null)
-            player.shutdown();
+        mediaFuture.cancel(true);
+        adsFuture.cancel(true);
+        // improve: future with interrupted seems more logical...
+        latch.countDown();
+        latch.countDown();
     }
-
-    private void cancelMediaFetch() {
-        if (mediaFuture != null) {
-            mediaFuture.cancel(true);
-            mediaFuture = null;
-        }
-    }
-
-    private void cancelAdsFetch() {
-        if (adsFuture != null) {
-            adsFuture.cancel(true);
-            adsFuture = null;
-        }
-    }
-
 
 
 //    public Lifecycle lifecycle() {

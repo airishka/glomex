@@ -8,17 +8,19 @@ import org.jetbrains.annotations.Nullable;
  *
  * Created by <b>me@olexxa.com</b>
  */
-public class WaitinglaybackController extends PlaybackControllerAdapter {
+public class WaitingPlaybackController extends PlaybackControllerAdapter {
 
     private @Nullable Boolean shouldPlay;
 
     private @Nullable Long position;
 
-    public Boolean shouldPlay() {
+    public @Nullable Boolean shouldPlay() {
         return shouldPlay;
     }
 
-    public Long position() { return position; }
+    public void shouldPlay(@Nullable Boolean shouldPlay) {
+        this.shouldPlay = shouldPlay;
+    }
 
     @Override
     public void play() {
@@ -33,6 +35,16 @@ public class WaitinglaybackController extends PlaybackControllerAdapter {
     @Override
     public void seek(long position) {
         this.position = position;
+    }
+
+    @Override
+    public long getPosition() {
+        return position == null? 0 : position;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return shouldPlay == null? false : shouldPlay;
     }
 
 }

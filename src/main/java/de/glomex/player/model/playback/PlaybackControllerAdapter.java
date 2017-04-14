@@ -6,38 +6,27 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaybackControllerAdapter implements PlaybackControl {
+public abstract class PlaybackControllerAdapter implements PlaybackControl {
 
-    private @Nullable Boolean shouldPlay;
-
-    public void shouldPlay(Boolean state) {
-        this.shouldPlay = state;
-    }
-
-    public Boolean shouldPlay() {
-        return shouldPlay;
-    }
-
-    public void shutdown() {
-    }
+    public void shutdown() {}
 
     @Override
-    public void play() {
-        shouldPlay = Boolean.TRUE;
-    }
+    public void play() {}
 
     @Override
-    public void pause() {
-        shouldPlay = Boolean.FALSE;
-    }
+    public void pause() {}
 
     @Override
-    public void seek(long position) {
-    }
+    public void seek(long position) {}
 
     @Override
     public long getPosition() {
         return 0;
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return false;
     }
 
 }

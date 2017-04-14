@@ -1,5 +1,6 @@
 package de.glomex.player;
 
+import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.PlayerFactory;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.AdPosition;
@@ -25,50 +26,32 @@ import java.util.List;
 /**
  * Example of 3rd party APP.
  *
- * It prepares UI Container element to integrate player into,
- * creates UI controls for playback and initialize a player API.
  *
  * Created by <b>me@olexxa.com</b>
  */
 public class TestFXApplication extends JavaFXApplication {
 
-    private void createAPI(@NotNull Stage stage) throws MalformedURLException {
-        URL preRollAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
-        URL secondAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
-        URL url = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
-        MediaID clipID = new MediaUUID();
+    final MediaID clipID = new MediaUUID();
+    final URL url = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
 
-        List<AdData> ads = new ArrayList<>();
+    List<AdData> ads = new ArrayList<>();
+    final URL preRollAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+    final URL secondAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+
+    public TestFXApplication() throws MalformedURLException {
         ads.add(new AdMetaData(){{ metadataURL = preRollAD; position = AdPosition.preRoll; }});
         ads.add(new AdMetaData(){{ metadataURL = secondAD; time = 5 * 1000l; }});
+        ads.add(new AdMetaData(){{ metadataURL = secondAD; time = 5 * 1000l; }});
+    }
 
-        Platform.setImplicitExit(true);
-
-        PlayerFactory.<Stage, Node>createPlayerAPI(
-            stage, true,
-            (api, playerComponent) -> {
-                Parent pane = JavaFXUtils.createBars(
-                    "3rd party APP controls", playerComponent,
-                    api.playbackController(), api.subscribeManager()
-                );
-                Scene scene = new Scene(pane);
-                stage.setScene(scene);
-                stage.show();
-
-                //api.requestFullScreen();
-                api.etcController().mediaResolver(mediaID -> new MediaMetadata(mediaID, url));
-                api.etcController().adResolver(mediaID -> ads);
-                api.playlistManager().addContent(clipID);
-                api.playlistManager().skipTo(clipID);
-                api.playbackController().play();
-
-                stage.setOnCloseRequest((event) -> {
-                    api.etcController().shutdown(() -> {
-                    });
-                    Platform.exit();
-                });
-            }
-        );
+    @Override
+    public void initializeAPI(@NotNull PlayerAPI api, @NotNull Node playerComponent) {
+        //api.requestFullScreen();
+        api.etcController().mediaResolver(mediaID -> new MediaMetadata(mediaID, url));
+        api.etcController().adResolver(mediaID -> ads);
+        api.playlistManager().addContent(clipID);
+        api.playlistManager().skipTo(clipID);
+        api.playbackController().play();
     }
 
 }

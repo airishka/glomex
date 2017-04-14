@@ -1,6 +1,7 @@
 package de.glomex.player.javafx;
 
 import de.glomex.player.model.events.EventLogger;
+import javafx.application.Platform;
 import javafx.scene.control.TextArea;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,9 @@ public class JavaFXEventLogger implements EventLogger {
 
     @Override
     public void logEvent(@NotNull String eventMessage) {
-        logArea.appendText(eventMessage + "\n");
-        logArea.setScrollTop(Double.MAX_VALUE);
+        Platform.runLater(() -> {
+            logArea.appendText(eventMessage + "\n");
+            logArea.setScrollTop(Double.MAX_VALUE);
+        });
     }
 }

@@ -5,6 +5,7 @@ import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.model.api.Logging;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.logging.Logger;
@@ -21,23 +22,38 @@ public class Lifecycle {
 
     //private static final Logger log = Logging.getLogger(Lifecycle.class);
 
-    final MediaID mediaID;
+    public final MediaID mediaID;
 
-    MediaData media;
-    private List<AdMetaData> ads;
+    private @Nullable MediaData media;
+    private @Nullable List<AdMetaData> ads;
 
     public Lifecycle(@NotNull MediaID mediaID) {
         this.mediaID = mediaID;
     }
 
-    public void ads(@NotNull List<AdData> ads) {
+    void media(MediaData media) {
+        this.media = media;
+    }
+
+    public @Nullable MediaData media() {
+        return media;
+    }
+
+    void ads(@NotNull List<AdData> ads) {
         this.ads = ads.stream()
             .<AdMetaData>map(AdMetaData::new)
             .collect(Collectors.toList());
     }
 
+    public @Nullable List<AdMetaData> ads() {
+        return ads;
+    }
+
     // must be only called when media is obtained
     public void resolve() {
+        if (ads == null)
+            return;
+
         //noinspection ConstantConditions
         if (!media.isStream() && media.duration() < 1)
             throw new IllegalArgumentException("Media duration must be greater than ero");
@@ -52,7 +68,9 @@ public class Lifecycle {
     }
 
     public List<Long> stops() {
-        return ads.stream().map(AdMetaData::time).collect(Collectors.toList());
+        return ads == null?
+            Collections.emptyList() :
+            ads.stream().map(AdMetaData::time).collect(Collectors.toList());
     }
 
     public boolean ready() {

@@ -19,6 +19,7 @@ public class EtcController implements EtcControl {
     private MediaResolver mediaResolver;
     private AdResolver adResolver;
     private boolean autoplay;
+    private boolean fullscreen;
 
     public EtcController(@NotNull GlomexPlayer glomexPlayer) {
         this.glomexPlayer = glomexPlayer;
@@ -31,7 +32,11 @@ public class EtcController implements EtcControl {
 
     @Override
     public void requestFullScreen() {
-        throw new IllegalStateException("FIXME: Not implemented"); // fixme
+        fullscreen = true;
+    }
+
+    public boolean fullscreen() {
+        return fullscreen;
     }
 
     @Override

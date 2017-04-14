@@ -1,8 +1,7 @@
 package de.glomex.player.model.api;
 
 import de.glomex.player.api.playback.PlaybackControl;
-import de.glomex.player.model.playback.PlaybackControllerAdapter;
-import de.glomex.player.model.playback.WaitinglaybackController;
+import de.glomex.player.model.playback.WaitingPlaybackController;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
@@ -19,7 +18,7 @@ public class ActionDispatcher {
 
     private final PlaybackControl playbackProxy;
 
-    private PlaybackControllerAdapter playbackDelegate;
+    private PlaybackControl playbackDelegate;
 
     public ActionDispatcher() {
         playbackProxy = (PlaybackControl) Proxy.newProxyInstance(
@@ -27,21 +26,21 @@ public class ActionDispatcher {
             new Class[]{PlaybackControl.class},
             this::delegate
         );
-        playbackDelegate = new WaitinglaybackController();
+        playbackDelegate = new WaitingPlaybackController();
     }
 
     public @NotNull PlaybackControl playbackProxy() {
         return playbackProxy;
     }
 
-    public @NotNull
-    PlaybackControllerAdapter playbackDelegate() {
+    public @NotNull PlaybackControl playbackDelegate() {
         return playbackDelegate;
     }
 
-    public PlaybackControllerAdapter playbackController(@NotNull PlaybackControllerAdapter delegate) {
+    public PlaybackControl playbackController(@NotNull PlaybackControl delegate) {
         synchronized (lock) {
-            PlaybackControllerAdapter previous = this.playbackDelegate;
+            log.fine("Set delegate: " + delegate);
+            PlaybackControl previous = this.playbackDelegate;
             this.playbackDelegate = delegate;
             return previous;
         }

@@ -3,6 +3,7 @@ package de.glomex.player.model.playlist;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.PlayerTestCase;
 import de.glomex.player.model.api.GlomexPlayer;
 import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.media.MediaUUID;
@@ -15,7 +16,7 @@ import java.util.Arrays;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaylistTest extends TestCase {
+public class PlaylistTest extends PlayerTestCase {
 
     final MediaID
         a = new MediaUUID(),
@@ -32,8 +33,8 @@ public class PlaylistTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        GlomexPlayer player = GlomexPlayerFactory.create();
-        player.subscribeManager().registerListener(new PlaylistListener() {
+        playlist = glomexPlayer.playlistManager();
+        glomexPlayer.subscribeManager().registerListener(new PlaylistListener() {
             public void onChanged() {}
             public void onNext(@NotNull MediaID mediaID) {
                 current = mediaID;
@@ -41,7 +42,6 @@ public class PlaylistTest extends TestCase {
             public void onFinished() {}
         });
 
-        playlist = player.playlistManager();
     }
 
     private MediaID waitAssertSame(MediaID specimen) {

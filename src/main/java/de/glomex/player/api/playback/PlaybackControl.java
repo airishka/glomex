@@ -16,4 +16,6 @@ public interface PlaybackControl extends ControlTag {
 
     long getPosition();
 
+    boolean isPlaying();
+
 }
