@@ -3,15 +3,12 @@ package de.glomex.player.model.api;
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.events.SubscribeControl;
-import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackControl;
-import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistControl;
-import de.glomex.player.javafx.JavaFXPlayer;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.EventLogger;
 import de.glomex.player.model.events.SubscribeManager;
-import de.glomex.player.model.playback.PlaybackController;
+import de.glomex.player.model.playback.PlaybackControllerAdapter;
 import de.glomex.player.model.playlist.PlaylistManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -40,7 +37,7 @@ public class GlomexPlayer implements PlayerAPI {
         etcController = new EtcController(this);
         playlistManager = new PlaylistManager(eventHandler.playlistListener());
 
-        actionDispatcher.playbackController(new PlaybackController());
+//        actionDispatcher.playbackController(new PlaybackControllerAdapter());
         //mockPlayer(); // mock: remove it
     }
 

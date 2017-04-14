@@ -1,22 +1,14 @@
-package de.glomex.player;
+package de.glomex.player.model.lifecycle;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.AdPosition;
-import de.glomex.player.api.lifecycle.AdResolver;
-import de.glomex.player.api.lifecycle.MediaResolver;
 import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.model.PlayerTestCase;
 import de.glomex.player.model.api.GlomexPlayer;
 import de.glomex.player.model.api.GlomexPlayerFactory;
-import de.glomex.player.model.lifecycle.AdMetaData;
-import de.glomex.player.model.lifecycle.Lifecycle;
-import de.glomex.player.model.lifecycle.LifecycleManager;
 import de.glomex.player.model.media.MediaMetadata;
 import de.glomex.player.model.media.MediaUUID;
 import junit.framework.TestCase;
-import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -27,7 +19,9 @@ import java.util.List;
  * Created by <b>me@olexxa.com</b>
  */
 @SuppressWarnings("ConstantConditions")
-public class LifecycleTest extends TestCase {
+public class LifecycleManagerTest extends PlayerTestCase {
+
+    public LifecycleManagerTest() throws MalformedURLException {}
 
     public void testClip() throws MalformedURLException {
         MediaID clipId = new MediaUUID();
@@ -50,7 +44,6 @@ public class LifecycleTest extends TestCase {
         doTest(clipId, clip, ads, stops);
     }
 
-
     public void testStream() throws MalformedURLException {
         MediaID streamId = new MediaUUID();
         MediaMetadata stream = new MediaMetadata(streamId, "http://olexa.com/1.avi") {{ isStream = true; }};
@@ -68,11 +61,8 @@ public class LifecycleTest extends TestCase {
     }
 
     private void doTest(MediaID mediaId, MediaMetadata media, List<AdData> ads, List<Long> stops) {
-        GlomexPlayer player = GlomexPlayerFactory.create();
-        player.etcController().mediaResolver(
-            mediaID -> media
-        );
-        player.etcController().adResolver(mediaID -> ads);
+        etcController.mediaResolver( mediaID -> media );
+        etcController.adResolver( mediaID -> ads  );
 
         LifecycleManager lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
         lifecycleManager.open(mediaId);

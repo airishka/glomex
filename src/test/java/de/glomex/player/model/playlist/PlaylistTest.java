@@ -1,4 +1,4 @@
-package de.glomex.player;
+package de.glomex.player.model.playlist;
 
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;

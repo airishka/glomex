@@ -4,9 +4,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import de.glomex.player.api.etc.EtcControl;
+import de.glomex.player.api.events.SubscribeControl;
 import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.events.EventHandler;
+import de.glomex.player.model.events.SubscribeManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -29,6 +31,7 @@ public class GlomexPlayerFactory {
 
             bind(ActionDispatcher.class).toInstance(glomexPlayer.actionDispatcher());
             bind(EventHandler.class).toInstance(glomexPlayer.eventHandler());
+//            bind(SubscribeControl.class).toInstance(glomexPlayer.subscribeManager());
 
             bind(EtcControl.class).toInstance(glomexPlayer.etcController());
             bind(EtcController.class).toInstance((EtcController) glomexPlayer.etcController());

@@ -6,7 +6,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaybackController implements PlaybackControl {
+public class PlaybackControllerAdapter implements PlaybackControl {
 
     private @Nullable Boolean shouldPlay;
 
