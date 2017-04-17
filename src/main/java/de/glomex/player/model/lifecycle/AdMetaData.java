@@ -54,7 +54,7 @@ public class AdMetaData implements AdData {
             if (duration == null)
                 time = position.relative() == 0? 0l : null;
             else
-                time  =Math.round(duration * position.relative());
+                time = Math.round(duration * position.relative());
         } else {
             time = position.time();
             if (duration != null)
@@ -69,6 +69,10 @@ public class AdMetaData implements AdData {
 
     public Long time() {
         return time;
+    }
+
+    public long order() {
+        return time != null ? time * 10 + (position.isRelative()? 0 : 1) : Long.MAX_VALUE;
     }
 
 }

@@ -34,8 +34,8 @@ public class JavaFXPlayer extends PlayerAdapter {
         this.fullscreen = fullscreen;
 
         // mock: mocked UI, remove
-        this.stage = JavaFXPlayerFactory.stage;
-        this.mediaView = JavaFXPlayerFactory.mediaView;
+        this.stage = JavaFXPlayerAPIFactory.stage;
+        this.mediaView = JavaFXPlayerAPIFactory.mediaView;
     }
 
     @Override
@@ -57,7 +57,7 @@ public class JavaFXPlayer extends PlayerAdapter {
             player.setOnPaused(() -> playing = false);
             player.setOnStalled(() -> log.finest("buffering")); // mock: for debug
             // mock: fixme!!!! must call upper component, not the PL manager
-            player.setOnEndOfMedia(JavaFXPlayerFactory.playlistManager::next);
+            player.setOnEndOfMedia(JavaFXPlayerAPIFactory.playlistManager::next);
             mediaView.setMediaPlayer(player);
         });
     }

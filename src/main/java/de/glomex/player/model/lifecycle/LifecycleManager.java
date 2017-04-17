@@ -55,6 +55,7 @@ public class LifecycleManager {
 
     void lifecycle(@NotNull Lifecycle lifecycle) {
         this.lifecycle = lifecycle;
+        lifecycle.resolve();
 
         // PlaybackController coming = new PlaybackController();
         // mock: replace with proper playback adapter when implemented

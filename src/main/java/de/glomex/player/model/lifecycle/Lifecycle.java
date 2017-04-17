@@ -63,7 +63,7 @@ public class Lifecycle {
 
         ads = ads.stream()
             .filter(AdMetaData::scheduled)
-            .sorted(Comparator.comparingLong(AdMetaData::time))
+            .sorted(Comparator.comparingLong(AdMetaData::order))
             .collect(Collectors.toList());
     }
 

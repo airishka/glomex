@@ -6,7 +6,6 @@ import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.model.api.GlomexPlayer;
 import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.api.Logging;
-import javafx.application.Platform;
 import javafx.scene.Node;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
@@ -19,9 +18,9 @@ import java.util.logging.Logger;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class JavaFXPlayerFactory extends PlayerFactory<Stage, Node> {
+public class JavaFXPlayerAPIFactory extends PlayerFactory<Stage, Node> {
 
-    private static final Logger log = Logging.getLogger(JavaFXPlayerFactory.class);
+    private static final Logger log = Logging.getLogger(JavaFXPlayerAPIFactory.class);
 
     // fixme: its mostly mocks, remove
     static Stage stage;
