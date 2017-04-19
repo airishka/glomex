@@ -1,26 +1,26 @@
-package de.glomex.player.api.lifecycle;
+package de.glomex.player.api.media;
 
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.Media;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 
 /**
- * Responsible  for returning media info given media id
+ * Responsible  for returning content info given content id
  *
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
-public interface MediaData extends Playable {
+@SuppressWarnings("UnusedDeclaration")
+public interface Content extends Media {
 
     /**
-     * URL of the media
+     * URL of the content
      */
-    URL url();
+    @NotNull URL url();
 
     /**
-     * True if media is the live stream
+     * True if content is the live stream
      */
     boolean isStream();
 

@@ -1,6 +1,6 @@
 package de.glomex.player.model.events;
 
-import de.glomex.player.api.events.ListenerTag;
+import de.glomex.player.api.ListenerTag;
 import org.jetbrains.annotations.NotNull;
 
 /**

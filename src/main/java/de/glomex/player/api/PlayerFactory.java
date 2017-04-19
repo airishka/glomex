@@ -1,5 +1,7 @@
 package de.glomex.player.api;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Iterator;
 import java.util.ServiceLoader;
 import java.util.function.BiConsumer;
@@ -10,13 +12,13 @@ import java.util.function.BiConsumer;
  *
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public abstract class PlayerFactory<UI_IN, UI_OUT> {
 
-    public static <UI_IN, UI_OUT> void createPlayerAPI(
-        UI_IN embedInto,
+    public static <UI_IN, UI_OUT> void createPlayer(
+        @NotNull UI_IN embedInto,
         boolean useDefaultControls,
-        BiConsumer<PlayerAPI, UI_OUT> callback
+        @NotNull BiConsumer<PlayerAPI, UI_OUT> callback
     ) {
         ServiceLoader<PlayerFactory> loader = ServiceLoader.load(PlayerFactory.class);
         Iterator<PlayerFactory> implementations = loader.iterator();
@@ -28,6 +30,10 @@ public abstract class PlayerFactory<UI_IN, UI_OUT> {
         factory.create(embedInto, useDefaultControls, callback);
     }
 
-    protected abstract void create(UI_IN embedInto, boolean useDefaultControls, BiConsumer<PlayerAPI, UI_OUT> callback);
+    protected abstract void create(
+        @NotNull UI_IN embedInto,
+        boolean useDefaultControls,
+        @NotNull BiConsumer<PlayerAPI, UI_OUT> callback
+    );
 
 }

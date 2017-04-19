@@ -1,7 +1,7 @@
 package de.glomex.player.api.lifecycle;
 
-import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.Content;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,9 +9,8 @@ import org.jetbrains.annotations.Nullable;
  * Created by <b>me@olexxa.com</b>
  */
 @SuppressWarnings("UnusedDeclaration")
-public interface MediaResolver {
+public interface ContentResolver {
 
-    @Nullable
-    MediaData resolve(@NotNull MediaID mediaID);
+    @Nullable Content resolve(@NotNull MediaID mediaID);
 
 }

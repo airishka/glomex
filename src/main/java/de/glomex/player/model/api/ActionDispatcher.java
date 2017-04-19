@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// improve: if this will listen more controls: extract common base multiplexer class for this and event handler
 public class ActionDispatcher {
 
     private static final Logger log = Logging.getLogger(ActionDispatcher.class);

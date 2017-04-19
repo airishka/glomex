@@ -5,6 +5,7 @@ import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.playback.PlaybackControllerAdapter;
 
 /**
+ * TODO:
  * Created by <b>me@olexxa.com</b>
  */
 public abstract class PlayerAdapter extends PlaybackControllerAdapter implements PlaybackControl, MediaControl {

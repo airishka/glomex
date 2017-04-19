@@ -1,7 +1,7 @@
 package de.glomex.player.model.media;
 
-import de.glomex.player.api.playlist.MediaID;
-import de.glomex.player.model.lifecycle.AdMetaData;
+import de.glomex.player.api.media.MediaID;
+import de.glomex.player.model.lifecycle.AdvertiseData;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.ref.WeakReference;
@@ -14,15 +14,15 @@ import java.util.WeakHashMap;
  */
 public class _ContentRegistry {
 
-    private final Map<MediaID, WeakReference<MediaMetadata>> medias = new HashMap<>();
+    private final Map<MediaID, WeakReference<ContentInfo>> medias = new HashMap<>();
 
-    private final Map<MediaID, WeakReference<AdMetaData>> ads = new WeakHashMap<>();
+    private final Map<MediaID, WeakReference<AdvertiseData>> ads = new WeakHashMap<>();
 
-    public void add(@NotNull AdMetaData ad) {
+    public void add(@NotNull AdvertiseData ad) {
         ads.put(ad.id(), new WeakReference<>(ad));
     }
 
-    public void add(@NotNull MediaMetadata media) {
+    public void add(@NotNull ContentInfo media) {
         medias.put(media.id(), new WeakReference<>(media));
     }
 

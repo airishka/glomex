@@ -1,6 +1,5 @@
 package de.glomex.player.javafx;
 
-import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.player.PlayerAdapter;
@@ -39,11 +38,11 @@ public class JavaFXPlayer extends PlayerAdapter {
     }
 
     @Override
-    public void openMedia(@NotNull MediaData mediaData) {
-        // New player object must be created for each new media
+    public void openMedia(@NotNull de.glomex.player.api.media.Media media) {
+        // New player object must be created for each new content
         JavaFXUtils.ensureFxThread(() -> {
-            Media media = new Media(mediaData.url().toExternalForm());
-            player = new MediaPlayer(media);
+            Media fxMedia = new Media(media.url().toExternalForm());
+            player = new MediaPlayer(fxMedia);
             player.setAutoPlay(autoplay);
             player.setOnReady(() -> {
                 stage.sizeToScene();

@@ -1,16 +1,13 @@
 package de.glomex.player.model.lifecycle;
 
-import de.glomex.player.api.lifecycle.AdData;
-import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.playlist.MediaID;
-import de.glomex.player.model.api.Logging;
+import de.glomex.player.api.media.Advertise;
+import de.glomex.player.api.media.Content;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Nulls - mean not fetched
@@ -24,56 +21,56 @@ public class Lifecycle {
 
     public final MediaID mediaID;
 
-    private @Nullable MediaData media;
-    private @Nullable List<AdMetaData> ads;
+    private @Nullable Content content;
+    private @Nullable List<AdvertiseData> ads;
 
     public Lifecycle(@NotNull MediaID mediaID) {
         this.mediaID = mediaID;
     }
 
-    void media(MediaData media) {
-        this.media = media;
+    void content(Content content) {
+        this.content = content;
     }
 
-    public @Nullable MediaData media() {
-        return media;
+    public @Nullable Content content() {
+        return content;
     }
 
-    void ads(@NotNull List<AdData> ads) {
+    void ads(@NotNull List<Advertise> ads) {
         this.ads = ads.stream()
-            .<AdMetaData>map(AdMetaData::new)
+            .<AdvertiseData>map(AdvertiseData::new)
             .collect(Collectors.toList());
     }
 
-    public @Nullable List<AdMetaData> ads() {
+    public @Nullable List<AdvertiseData> ads() {
         return ads;
     }
 
-    // must be only called when media is obtained
+    // must be only called when content is obtained
     public void resolve() {
         if (ads == null)
             return;
 
         //noinspection ConstantConditions
-        if (!media.isStream() && media.duration() < 1)
-            throw new IllegalArgumentException("Media duration must be greater than ero");
+        if (!content.isStream() && content.duration() < 1)
+            throw new IllegalArgumentException("Content duration must be greater than zero");
 
         ads.stream()
-            .forEach(ad -> ad.resolve(media.duration()));
+            .forEach(ad -> ad.resolve(content.duration()));
 
         ads = ads.stream()
-            .filter(AdMetaData::scheduled)
-            .sorted(Comparator.comparingLong(AdMetaData::order))
+            .filter(AdvertiseData::scheduled)
+            .sorted(Comparator.comparingLong(AdvertiseData::order))
             .collect(Collectors.toList());
     }
 
     public List<Long> stops() {
         return ads == null?
             Collections.emptyList() :
-            ads.stream().map(AdMetaData::time).collect(Collectors.toList());
+            ads.stream().map(AdvertiseData::time).collect(Collectors.toList());
     }
 
     public boolean ready() {
-        return media != null && ads != null;
+        return content != null && ads != null;
     }
 }

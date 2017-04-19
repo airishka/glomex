@@ -1,33 +1,33 @@
 package de.glomex.player.api.lifecycle;
 
-import de.glomex.player.api.events.ListenerTag;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.ListenerTag;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by <b>me@olexxa.com</b>
  * TODO: split to 3 i/f
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public interface LifecycleListener extends ListenerTag {
 
-    void onMediaResolved(@NotNull MediaID mediaID);
+    void onContentResolved(@NotNull MediaID mediaID);
 
-    void onMediaError(@NotNull MediaID mediaID);
+    void onContentError(@NotNull MediaID mediaID);
 
-    void onAdsResolved(@NotNull MediaID adID);
+    void onAdsResolved(@NotNull MediaID mediaID);
 
-    void onAdError(@NotNull MediaID adID);
+    void onAdsError(@NotNull MediaID mediaID);
 
-    void onMediaStarted(@NotNull MediaID mediaID);
+    void onContentStarted(@NotNull MediaID mediaID);
 
-    void onMediaCompleted(@NotNull MediaID mediaID);
+    void onContentCompleted(@NotNull MediaID mediaID);
 
     void onAdStarted(@NotNull MediaID adID);
 
     void onAdCompleted(@NotNull MediaID adID);
 
-    void onLifecycleStarted(@NotNull MediaID adID);
+    void onLifecycleStarted(@NotNull MediaID mediaID);
 
     void onLifecycleCompleted(@NotNull MediaID mediaID);
 

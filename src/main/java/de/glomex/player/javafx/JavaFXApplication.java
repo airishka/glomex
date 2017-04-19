@@ -5,7 +5,6 @@ import de.glomex.player.api.PlayerFactory;
 import de.glomex.player.model.api.Logging;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.concurrent.Task;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -39,7 +38,7 @@ public class JavaFXApplication extends Application {
     }
 
     protected void createAPI(@NotNull Stage stage) throws MalformedURLException {
-        PlayerFactory.<Stage, Node>createPlayerAPI(
+        PlayerFactory.<Stage, Node>createPlayer(
             stage, true,
             (api, playerComponent) -> {
                 Parent pane = JavaFXUtils.createBars(

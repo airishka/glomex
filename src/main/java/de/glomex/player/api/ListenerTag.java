@@ -1,4 +1,4 @@
-package de.glomex.player.api.events;
+package de.glomex.player.api;
 
 /**
  * Just empty tag interface, to identify any listener

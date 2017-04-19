@@ -1,7 +1,7 @@
 package de.glomex.player.model.lifecycle;
 
 import de.glomex.player.api.lifecycle.LifecycleListener;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,22 +10,22 @@ import org.jetbrains.annotations.NotNull;
 public abstract class EmptyLifecycleListener implements LifecycleListener {
 
     @Override
-    public void onMediaResolved(@NotNull MediaID contentID) {}
+    public void onContentResolved(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onMediaError(@NotNull MediaID mediaID) {}
+    public void onContentError(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onAdsResolved(@NotNull MediaID contentID) {}
+    public void onAdsResolved(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onAdError(@NotNull MediaID adID) {}
+    public void onAdsError(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onMediaStarted(@NotNull MediaID contentID) {}
+    public void onContentStarted(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onMediaCompleted(@NotNull MediaID contentID) {}
+    public void onContentCompleted(@NotNull MediaID mediaID) {}
 
     @Override
     public void onAdStarted(@NotNull MediaID adID) {}

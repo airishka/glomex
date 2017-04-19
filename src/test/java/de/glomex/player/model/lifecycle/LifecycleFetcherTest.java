@@ -1,12 +1,10 @@
 package de.glomex.player.model.lifecycle;
 
 import de.glomex.player.model.PlayerTestCase;
-import de.glomex.player.model.api.GlomexPlayerFactory;
 
 import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Created by <b>me@olexxa.com</b>
@@ -21,7 +19,7 @@ public class LifecycleFetcherTest extends PlayerTestCase {
     }
 
     public void testNormal() throws InterruptedException {
-        etcController.mediaResolver( (mediaID) -> media );
+        etcController.contentResolver((mediaID) -> content);
         etcController.adResolver( (mediaID) -> Collections.emptyList() );
 
         CountDownLatch latch = new CountDownLatch(1);
@@ -29,7 +27,7 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
-            assertSame(media, lifecycle.media());
+            assertSame(content, lifecycle.content());
             assertSame(Collections.emptyList(), lifecycle.ads());
             latch.countDown();
         });
@@ -37,14 +35,14 @@ public class LifecycleFetcherTest extends PlayerTestCase {
     }
 
     public void testBadAD() throws InterruptedException {
-        etcController.mediaResolver( (mediaID) -> media);
+        etcController.contentResolver((mediaID) -> content);
         etcController.adResolver( (mediaID) -> { throw new IllegalArgumentException("Emulate exception for test"); });
 
         CountDownLatch latch = new CountDownLatch(1);
         LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
-            assertSame(media, lifecycle.media());
+            assertSame(content, lifecycle.content());
             assertNull(lifecycle.ads());
             latch.countDown();
         });
@@ -52,14 +50,16 @@ public class LifecycleFetcherTest extends PlayerTestCase {
     }
 
     public void testBadMedia() throws InterruptedException {
-        etcController.mediaResolver( mediaID -> { throw new IllegalArgumentException("Emulate exception for test"); });
+        etcController.contentResolver(mediaID -> {
+            throw new IllegalArgumentException("Emulate exception for test");
+        });
         etcController.adResolver( mediaID -> { sleep(); return Collections.emptyList(); } );
 
         CountDownLatch latch = new CountDownLatch(1);
         LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
-            assertNull(lifecycle.media());
+            assertNull(lifecycle.content());
             assertNull(lifecycle.ads());
             latch.countDown();
         });

@@ -1,6 +1,7 @@
 package de.glomex.player.api.events;
 
-import de.glomex.player.api.etc.ControlTag;
+import de.glomex.player.api.ControlTag;
+import de.glomex.player.api.ListenerTag;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -9,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public interface SubscribeControl extends ControlTag {
 
     void registerListener(@NotNull ListenerTag listener);

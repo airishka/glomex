@@ -3,7 +3,7 @@ package de.glomex.player.model.api;
 import de.glomex.player.api.etc.Callback;
 import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.lifecycle.AdResolver;
-import de.glomex.player.api.lifecycle.MediaResolver;
+import de.glomex.player.api.lifecycle.ContentResolver;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,7 +16,7 @@ public class EtcController implements EtcControl {
 
     private final GlomexPlayer glomexPlayer;
 
-    private MediaResolver mediaResolver;
+    private ContentResolver contentResolver;
     private AdResolver adResolver;
     private boolean autoplay;
     private boolean fullscreen;
@@ -56,12 +56,12 @@ public class EtcController implements EtcControl {
     }
 
     @Override
-    public void mediaResolver(@NotNull MediaResolver mediaResolver) {
-        this.mediaResolver = mediaResolver;
+    public void contentResolver(@NotNull ContentResolver contentResolver) {
+        this.contentResolver = contentResolver;
     }
 
-    public @NotNull MediaResolver mediaResolver() {
-        return mediaResolver;
+    public @NotNull ContentResolver contentResolver() {
+        return contentResolver;
     }
 
     @Override

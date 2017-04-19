@@ -1,6 +1,5 @@
-package de.glomex.player.api.lifecycle;
+package de.glomex.player.api.media;
 
-import de.glomex.player.api.playlist.MediaID;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.URL;
@@ -8,9 +7,11 @@ import java.net.URL;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public interface AdData extends Playable {
+@SuppressWarnings("UnusedDeclaration")
+public interface Advertise extends Media {
 
     /** URL to get ad metadata */
+    @NotNull
     URL url();
 
     /** Ad Placement */

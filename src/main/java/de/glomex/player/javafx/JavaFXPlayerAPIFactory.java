@@ -11,6 +11,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
 import java.util.logging.Logger;
@@ -33,7 +34,7 @@ public class JavaFXPlayerAPIFactory extends PlayerFactory<Stage, Node> {
     };
 
     @Override
-    protected void create(Stage embedInto, boolean useDefaultControls, BiConsumer<PlayerAPI, Node> callback) {
+    protected void create(@NotNull Stage embedInto, boolean useDefaultControls, @NotNull BiConsumer<PlayerAPI, Node> callback) {
         stage = embedInto;
         mediaView = new MediaView();
 

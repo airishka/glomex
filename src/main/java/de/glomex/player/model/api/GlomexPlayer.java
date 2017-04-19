@@ -75,7 +75,7 @@ public class GlomexPlayer implements PlayerAPI {
         playlistManager.shutdown();
     }
 
-    // mock: remove it
+    // todo; could be better
     public void addEventLogger(EventLogger logger) {
         eventHandler.addLogger(logger);
     }

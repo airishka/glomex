@@ -1,9 +1,8 @@
 package de.glomex.player.api.playlist;
 
-import de.glomex.player.api.etc.ControlTag;
+import de.glomex.player.api.ControlTag;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
-
-import java.net.URL;
 
 /**
  * improve: if playlist is immutable, then could be split to building and playing parts
@@ -12,7 +11,7 @@ import java.net.URL;
  *
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public interface PlaylistControl extends ControlTag {
 
     /**
@@ -52,7 +51,7 @@ public interface PlaylistControl extends ControlTag {
 
     /**
      * Switch to the content passed
-     * It there is several media with the same id added, first found will be played.
+     * It there is several content with the same id added, first found will be played.
      *
      * @throws java.lang.IllegalArgumentException when content passed is not in the list
      */

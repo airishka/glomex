@@ -2,7 +2,7 @@ package de.glomex.player.model.lifecycle;
 
 import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.playback.PlaybackListener;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.MediaID;
 import de.glomex.player.javafx.JavaFXPlayer;
 import de.glomex.player.model.api.ActionDispatcher;
 import de.glomex.player.model.api.EtcController;
@@ -41,7 +41,7 @@ public class LifecycleManager {
 
     private void lifecycle(@NotNull Lifecycle lifecycle) {
         this.lifecycle = lifecycle;
-        if (lifecycle.media() == null) {
+        if (lifecycle.content() == null) {
             lifecycleListener.onLifecycleError(lifecycle.mediaID);
             shutdown();
             return;
@@ -50,7 +50,7 @@ public class LifecycleManager {
         lifecycle.resolve();
 
         // todo: add /register/ itself as playback listener
-        // todo: iterate via media and add
+        // todo: iterate via content and add
         playItem(); // mock
     }
 
@@ -77,7 +77,7 @@ public class LifecycleManager {
         // normal code
         WaitingPlaybackController previous = (WaitingPlaybackController) actionDispatcher.playbackController(coming);
         //noinspection ConstantConditions
-        coming.openMedia(lifecycle.media());
+        coming.openMedia(lifecycle.content());
         Boolean shouldPlay = null;
         if (previous != null)
             shouldPlay = previous.shouldPlay();

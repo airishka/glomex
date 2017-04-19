@@ -1,7 +1,7 @@
 package de.glomex.player.model.media;
 
-import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.Content;
+import de.glomex.player.api.media.MediaID;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,20 +11,20 @@ import java.net.URL;
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class MediaMetadata implements MediaData {
+public class ContentInfo implements Content {
 
     public final MediaID id;
 
     protected boolean isStream;
-    protected URL url;
-    protected Long duration;
-    protected Integer width, height;
+    protected @NotNull URL url;
+    protected @Nullable Long duration;
+//    protected Integer width, height;
 
-    public MediaMetadata(@NotNull MediaID id, @NotNull String url, @Nullable Long duration) throws MalformedURLException {
+    public ContentInfo(@NotNull MediaID id, @NotNull String url, @Nullable Long duration) throws MalformedURLException {
         this(id, new URL(url), duration);
     }
 
-    public MediaMetadata(@NotNull MediaID id, @NotNull URL url, @Nullable Long duration) {
+    public ContentInfo(@NotNull MediaID id, @NotNull URL url, @Nullable Long duration) {
         this.id = id;
         this.url = url;
         this.duration = duration;
@@ -42,26 +42,26 @@ public class MediaMetadata implements MediaData {
     }
 
     @Override
-    public URL url() {
+    public @NotNull URL url() {
         return url;
     }
 
     @Override
-    public Long duration() {
+    public @Nullable Long duration() {
         return duration;
     }
 
-    public Integer width() {
-        return width;
-    }
-
-    public Integer height() {
-        return height;
-    }
+//    public Integer width() {
+//        return width;
+//    }
+//
+//    public Integer height() {
+//        return height;
+//    }
 
     @Override
     public String toString() {
-        return "Media " + id + " " + url;
+        return "Content " + id + " " + url;
     }
 
 }

@@ -1,9 +1,8 @@
 package de.glomex.player.model.playlist;
 
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
-import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.lifecycle.EmptyLifecycleListener;
 import de.glomex.player.model.lifecycle.LifecycleManager;

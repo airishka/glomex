@@ -1,11 +1,11 @@
 package de.glomex.player.api.playback;
 
-import de.glomex.player.api.etc.ControlTag;
+import de.glomex.player.api.ControlTag;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public interface PlaybackControl extends ControlTag {
 
     void play();

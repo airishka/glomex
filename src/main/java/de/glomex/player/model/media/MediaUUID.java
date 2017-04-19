@@ -1,6 +1,6 @@
 package de.glomex.player.model.media;
 
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.MediaID;
 
 import java.util.UUID;
 
@@ -13,7 +13,7 @@ public class MediaUUID implements MediaID {
 
     @Override
     public String toString() {
-        return uuid.toString();
+        return uuid.toString().substring(0, 5); // todo: remove substring
     }
 
 }

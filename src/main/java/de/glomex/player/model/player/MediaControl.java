@@ -1,6 +1,6 @@
 package de.glomex.player.model.player;
 
-import de.glomex.player.api.lifecycle.MediaData;
+import de.glomex.player.api.media.Media;
 
 /**
  * Created by <b>me@olexxa.com</b>
@@ -8,6 +8,6 @@ import de.glomex.player.api.lifecycle.MediaData;
  */
 public interface MediaControl {
 
-    void openMedia(MediaData mediaData);
+    void openMedia(Media media);
 
 }

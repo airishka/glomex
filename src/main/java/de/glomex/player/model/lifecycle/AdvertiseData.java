@@ -1,7 +1,8 @@
 package de.glomex.player.model.lifecycle;
 
-import de.glomex.player.api.lifecycle.*;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.AdPosition;
+import de.glomex.player.api.media.Advertise;
+import de.glomex.player.api.media.MediaID;
 import de.glomex.player.model.media.MediaUUID;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,7 +13,7 @@ import java.net.URL;
  *
  * Created by <b>me@olexxa.com</b>
  */
-public class AdMetaData implements AdData {
+public class AdvertiseData implements Advertise {
 
     MediaID id;
     protected URL metadataURL;
@@ -20,17 +21,17 @@ public class AdMetaData implements AdData {
     protected Long time;
 
     // mock: for tests
-    public AdMetaData(String time) {
+    public AdvertiseData(String time) {
         this(new AdPosition(time));
     }
 
     // mock: for tests
-    public AdMetaData(AdPosition position) {
+    public AdvertiseData(AdPosition position) {
         id = new MediaUUID();
         this.position = position;
     }
 
-    AdMetaData(@NotNull AdData origin) {
+    AdvertiseData(@NotNull Advertise origin) {
         this.id = origin.id();
         this.metadataURL = origin.url();
         this.position = origin.position();
@@ -41,8 +42,9 @@ public class AdMetaData implements AdData {
         return id;
     }
 
+
     @Override
-    public URL url() {
+    public @NotNull URL url() {
         return metadataURL;
     }
 

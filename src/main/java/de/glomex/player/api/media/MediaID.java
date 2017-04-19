@@ -1,4 +1,4 @@
-package de.glomex.player.api.playlist;
+package de.glomex.player.api.media;
 
 /**
  * Created by <b>me@olexxa.com</b>

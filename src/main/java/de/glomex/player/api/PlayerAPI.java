@@ -4,19 +4,20 @@ import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.events.SubscribeControl;
 import de.glomex.player.api.playback.PlaybackControl;
 import de.glomex.player.api.playlist.PlaylistControl;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public interface PlayerAPI {
 
-    EtcControl etcController();
+    @NotNull EtcControl etcController();
 
-    SubscribeControl subscribeManager();
+    @NotNull SubscribeControl subscribeManager();
 
-    PlaylistControl playlistManager();
+    @NotNull PlaylistControl playlistManager();
 
-    PlaybackControl playbackController();
+    @NotNull PlaybackControl playbackController();
 
 }

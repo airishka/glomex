@@ -1,6 +1,7 @@
-package de.glomex.player.api.lifecycle;
+package de.glomex.player.api.media;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
@@ -10,17 +11,17 @@ import static java.time.temporal.ChronoField.MILLI_OF_DAY;
 /**
  * Created by <b>me@olexxa.com</b>
 */
-@SuppressWarnings("unused")
+@SuppressWarnings("UnusedDeclaration")
 public class AdPosition {
 
     public static final AdPosition
-        preRoll = new AdPosition(0),
+        preRoll =          new AdPosition(0),
         firstQuarterRoll = new AdPosition(0.25),
-        midRoll = new AdPosition(0.50),
+        midRoll =          new AdPosition(0.50),
         thirdQuarterRoll = new AdPosition(0.75),
-        postRoll = new AdPosition(1.0);
+        postRoll =         new AdPosition(1.0);
 
-    private final Double relative;
+    private final @Nullable Double relative;
     private Long time;
 
     private AdPosition(double relative) {

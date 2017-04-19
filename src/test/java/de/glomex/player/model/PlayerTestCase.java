@@ -1,11 +1,11 @@
 package de.glomex.player.model;
 
-import de.glomex.player.api.lifecycle.MediaData;
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.Content;
+import de.glomex.player.api.media.MediaID;
 import de.glomex.player.model.api.EtcController;
 import de.glomex.player.model.api.GlomexPlayer;
 import de.glomex.player.model.api.GlomexPlayerFactory;
-import de.glomex.player.model.media.MediaMetadata;
+import de.glomex.player.model.media.ContentInfo;
 import de.glomex.player.model.media.MediaUUID;
 import junit.framework.TestCase;
 
@@ -25,7 +25,7 @@ public abstract class PlayerTestCase extends TestCase {
 
     protected final MediaID mediaID = new MediaUUID();
     protected final URL mediaURL = new URL("http://olexa.com/1.avi");
-    protected final MediaData media = new MediaMetadata(mediaID, mediaURL, 300l);
+    protected final Content content = new ContentInfo(mediaID, mediaURL, 300l);
 
     public PlayerTestCase() throws MalformedURLException {}
 

@@ -1,13 +1,10 @@
 package de.glomex.player.model.playlist;
 
-import de.glomex.player.api.playlist.MediaID;
+import de.glomex.player.api.media.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.model.PlayerTestCase;
-import de.glomex.player.model.api.GlomexPlayer;
-import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.media.MediaUUID;
-import junit.framework.TestCase;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;

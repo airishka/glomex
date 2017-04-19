@@ -1,6 +1,5 @@
 package de.glomex.player.model.api;
 
-import javafx.application.Platform;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.*;
