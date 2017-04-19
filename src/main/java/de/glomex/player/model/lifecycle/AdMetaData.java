@@ -20,11 +20,17 @@ public class AdMetaData implements AdData {
     protected Long time;
 
     // mock: for tests
-    public AdMetaData() {
-        id = new MediaUUID();
+    public AdMetaData(String time) {
+        this(new AdPosition(time));
     }
 
-    public AdMetaData(@NotNull AdData origin) {
+    // mock: for tests
+    public AdMetaData(AdPosition position) {
+        id = new MediaUUID();
+        this.position = position;
+    }
+
+    AdMetaData(@NotNull AdData origin) {
         this.id = origin.id();
         this.metadataURL = origin.url();
         this.position = origin.position();

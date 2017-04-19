@@ -3,6 +3,7 @@ package de.glomex.player.model.media;
 import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playlist.MediaID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -19,13 +20,15 @@ public class MediaMetadata implements MediaData {
     protected Long duration;
     protected Integer width, height;
 
-    public MediaMetadata(@NotNull MediaID id, @NotNull String url) throws MalformedURLException {
-        this(id, new URL(url));
+    public MediaMetadata(@NotNull MediaID id, @NotNull String url, @Nullable Long duration) throws MalformedURLException {
+        this(id, new URL(url), duration);
     }
 
-    public MediaMetadata(@NotNull MediaID id, @NotNull URL url) {
+    public MediaMetadata(@NotNull MediaID id, @NotNull URL url, @Nullable Long duration) {
         this.id = id;
         this.url = url;
+        this.duration = duration;
+        isStream = duration != null; // fixme
     }
 
     @Override

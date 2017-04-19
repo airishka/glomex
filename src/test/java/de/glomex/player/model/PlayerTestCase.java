@@ -11,6 +11,8 @@ import junit.framework.TestCase;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.LogManager;
 
 /**
@@ -23,7 +25,7 @@ public abstract class PlayerTestCase extends TestCase {
 
     protected final MediaID mediaID = new MediaUUID();
     protected final URL mediaURL = new URL("http://olexa.com/1.avi");
-    protected final MediaData media = new MediaMetadata(mediaID, mediaURL);
+    protected final MediaData media = new MediaMetadata(mediaID, mediaURL, 300l);
 
     public PlayerTestCase() throws MalformedURLException {}
 
@@ -37,6 +39,24 @@ public abstract class PlayerTestCase extends TestCase {
 
         glomexPlayer = GlomexPlayerFactory.create();
         etcController = GlomexPlayerFactory.instance(EtcController.class);
+    }
+
+    protected void await(CountDownLatch latch) {
+        try {
+            boolean result = latch.await(1, TimeUnit.SECONDS);
+            if (!result)
+                fail("Timeout");
+        } catch (InterruptedException e) {
+            fail("Interrupted");
+        }
+    }
+
+    protected void sleep() {
+        try {
+            Thread.sleep(TimeUnit.SECONDS.toMillis(100));
+            fail("Must be interrupted");
+        } catch (InterruptedException ignored) {
+        }
     }
 
 }

@@ -4,12 +4,15 @@ import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.model.api.GlomexPlayerFactory;
+import de.glomex.player.model.api.Logging;
+import de.glomex.player.model.lifecycle.EmptyLifecycleListener;
 import de.glomex.player.model.lifecycle.LifecycleManager;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Supplier;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,7 +31,9 @@ import java.util.stream.Stream;
  *
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaylistManager implements PlaylistControl {
+public class PlaylistManager extends EmptyLifecycleListener implements PlaylistControl {
+
+    private static final Logger log = Logging.getLogger(PlaylistManager.class);
 
     private static final int MAX_HISTORY_SIZE = 20;
 
@@ -156,6 +161,7 @@ public class PlaylistManager implements PlaylistControl {
 
     // outer synchronization required
     private boolean skipTo(@NotNull MediaID coming, boolean add2History) {
+        log.entering("PlaylistManager", "skipTo", coming);
         if (current != null) {
             statuses.put(current, Status.played);
 
@@ -174,11 +180,20 @@ public class PlaylistManager implements PlaylistControl {
         current = coming;
         statuses.put(coming, Status.isBeingPlayed);
 
+        playlistListener.onNext(coming);
+
         lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
         lifecycleManager.open(coming);
 
-        playlistListener.onNext(coming);
         return true;
+    }
+
+    @Override
+    public void onLifecycleCompleted(@NotNull MediaID mediaID) {
+        synchronized (lock) {
+            if (mediaID.equals(current))
+                next();
+        }
     }
 
     @Override

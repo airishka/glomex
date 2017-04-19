@@ -99,7 +99,7 @@ public class EventHandler {
 
     private @Nullable Object invocationHandler(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
         // improve: do we need to block this until everything is completed?...
-
+        log.entering(method.getDeclaringClass().getSimpleName(), method.getName(), args);
         String message = createLogMessage(method, args);
         // Loggers, synchronous
         for (EventLogger logger: loggers)
@@ -134,13 +134,17 @@ public class EventHandler {
 
     private String createLogMessage(@NotNull Method method, @Nullable Object[] args) {
         StringBuilder message = new StringBuilder();
-        message.append(method.getName());
+        message
+            .append(method.getDeclaringClass().getSimpleName())
+            .append(".")
+            .append(method.getName());
         if (args != null) {
             StringJoiner joiner = new StringJoiner(", ", "(", ")");
             for (Object arg: args)
                 joiner.add(arg.toString());
             message.append(joiner.toString());
-        }
+        } else
+            message.append("()");
         return message.toString();
     }
 

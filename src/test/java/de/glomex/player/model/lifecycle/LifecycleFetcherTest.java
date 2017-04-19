@@ -68,20 +68,5 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         await(latch);
     }
 
-    private void await(CountDownLatch latch) {
-        try {
-            latch.await(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            fail("Haven't finished");
-        }
-    }
-
-    private void sleep() {
-        try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(100));
-            fail("Must be interrupted");
-        } catch (InterruptedException ignored) {
-        }
-    }
 
 }

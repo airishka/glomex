@@ -13,8 +13,6 @@ public abstract class PlayerAdapter extends PlaybackControllerAdapter implements
 
     protected boolean fullscreen;
 
-    protected boolean canPushTicks;
-
     public PlaybackListener eventListener;
 
 }

@@ -8,7 +8,6 @@ import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.EventLogger;
 import de.glomex.player.model.events.SubscribeManager;
-import de.glomex.player.model.playback.PlaybackControllerAdapter;
 import de.glomex.player.model.playlist.PlaylistManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -36,6 +35,8 @@ public class GlomexPlayer implements PlayerAPI {
         eventHandler = new EventHandler(subscribeManager, executionManager);
         etcController = new EtcController(this);
         playlistManager = new PlaylistManager(eventHandler.playlistListener());
+
+        subscribeManager.registerListener(playlistManager);
     }
 
     public @NotNull ExecutionManager executionManager() {

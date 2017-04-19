@@ -3,6 +3,7 @@ package de.glomex.player;
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.lifecycle.AdData;
 import de.glomex.player.api.lifecycle.AdPosition;
+import de.glomex.player.api.lifecycle.MediaResolver;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.javafx.JavaFXApplication;
 import de.glomex.player.model.lifecycle.AdMetaData;
@@ -26,26 +27,36 @@ public class TestFXApplication extends JavaFXApplication {
 
     final MediaID clipID = new MediaUUID();
     final URL url = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+    final MediaMetadata media = new MediaMetadata(clipID, url, 300l);
 
     List<AdData> ads = new ArrayList<>();
-    final URL preRollAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
-    final URL secondAD = new URL("http://static.ipoker.com/aogtwister/video/Age%20Of%20The%20Gods%2009.mp4");
+    final URL preRollAD = new URL("http://olexxa.com/ad1.avi");
+    final URL secondAD = new URL("http://olexxa.com/ad2.avi");
+
+    MediaResolver mediaResolver = mediaID -> {
+        if (mediaID == clipID)
+            return  media;
+        throw new IllegalStateException();
+    };
 
     public TestFXApplication() throws MalformedURLException {
-        ads.add(new AdMetaData(){{ metadataURL = preRollAD; position = AdPosition.preRoll; }});
-        ads.add(new AdMetaData(){{ metadataURL = secondAD; time = 5 * 1000l; }});
-        ads.add(new AdMetaData(){{ metadataURL = secondAD; time = 5 * 1000l; }});
+        ads.add(new AdMetaData(AdPosition.preRoll){{ metadataURL = preRollAD; }});
+        ads.add(new AdMetaData("00:05"){{ metadataURL = secondAD; }});
     }
 
     @Override
     public void initializeAPI(@NotNull PlayerAPI api, @NotNull Node playerComponent) {
 //        api.etcController().requestFullScreen();
-//        api.etcController().setAutoPlay(true);
+        api.etcController().setAutoPlay(true);
 
-        api.etcController().mediaResolver(mediaID -> new MediaMetadata(mediaID, url));
+        api.etcController().mediaResolver(mediaResolver);
         api.etcController().adResolver(mediaID -> ads);
+
+        api.playlistManager().addContent(new MediaUUID());
+        api.playlistManager().addContent(new MediaUUID());
         api.playlistManager().addContent(clipID);
-        api.playlistManager().skipTo(clipID);
+        api.playlistManager().skipTo(0);
+
         api.playbackController().play();
     }
 

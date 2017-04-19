@@ -93,8 +93,11 @@ public class LifecycleFetcher {
 
     private void latchDown() {
         latch.countDown();
-        if (callback != null && latch.getCount() == 0)
+        if (callback != null && latch.getCount() == 0) {
             callback.accept(lifecycle);
+            callback = null;
+            shutdown();
+        }
     }
 
     // block current thread

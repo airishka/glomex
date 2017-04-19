@@ -14,7 +14,7 @@ public class EventTracker {
 
     public void trackEvent(@NotNull String message) {
         // fixme: implement tracking
-        log.fine(message);
+        // log.fine(message);
     }
 
 }
