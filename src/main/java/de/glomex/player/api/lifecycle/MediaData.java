@@ -12,12 +12,7 @@ import java.net.URL;
  * Created by <b>me@olexxa.com</b>
  */
 @SuppressWarnings("unused")
-public interface MediaData {
-
-    /**
-     * Media ID
-     */
-    @NotNull MediaID id();
+public interface MediaData extends Playable {
 
     /**
      * URL of the media
