@@ -182,14 +182,20 @@ public class PlaylistManager extends EmptyLifecycleListener implements PlaylistC
 
         playlistListener.onNext(coming);
 
-        lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
-        lifecycleManager.open(coming);
-
+        lifecycleManager = new LifecycleManager(coming);;
         return true;
     }
 
     @Override
+    public void onLifecycleError(@NotNull MediaID mediaID) {
+        doNext(mediaID);
+    }
+    @Override
     public void onLifecycleCompleted(@NotNull MediaID mediaID) {
+        doNext(mediaID);
+    }
+
+    private void doNext(@NotNull MediaID mediaID) {
         synchronized (lock) {
             if (mediaID.equals(current))
                 next();

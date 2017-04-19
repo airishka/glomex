@@ -29,7 +29,7 @@ public class JavaFXPlayer extends PlayerAdapter {
     private boolean playing;
 
     public JavaFXPlayer(PlaybackListener playbackListener, boolean autoplay, boolean fullscreen) {
-        eventListener = playbackListener;
+        this.playbackListener = playbackListener;
         this.autoplay = autoplay;
         this.fullscreen = fullscreen;
 
@@ -55,9 +55,8 @@ public class JavaFXPlayer extends PlayerAdapter {
             });
             player.setOnPlaying(() -> playing = true);
             player.setOnPaused(() -> playing = false);
-            player.setOnStalled(() -> log.finest("buffering")); // mock: for debug
-            // mock: fixme!!!! must call upper component, not the PL manager
-            player.setOnEndOfMedia(JavaFXPlayerAPIFactory.playlistManager::next);
+            player.setOnStalled(() -> log.finest("player stalled, buffering"));
+            player.setOnEndOfMedia(playbackListener::onFinished);
             mediaView.setMediaPlayer(player);
         });
     }
@@ -66,7 +65,7 @@ public class JavaFXPlayer extends PlayerAdapter {
     public void play() {
         if (player != null)
             JavaFXUtils.ensureFxThread( () -> {
-                eventListener.onPlay();
+                playbackListener.onPlay();
                 player.play();
             });
     }
@@ -75,7 +74,7 @@ public class JavaFXPlayer extends PlayerAdapter {
     public void pause() {
         if (player != null)
             JavaFXUtils.ensureFxThread( () -> {
-                eventListener.onPause();
+                playbackListener.onPause();
                 player.pause();
             });
     }
@@ -84,7 +83,7 @@ public class JavaFXPlayer extends PlayerAdapter {
     public void seek(long position) {
         if (player != null)
             JavaFXUtils.ensureFxThread( () -> {
-                eventListener.onSeek(position);
+                playbackListener.onSeek(position);
                 player.seek(new Duration(position));
             });
     }

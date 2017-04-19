@@ -43,7 +43,7 @@ public abstract class PlayerTestCase extends TestCase {
 
     protected void await(CountDownLatch latch) {
         try {
-            boolean result = latch.await(1, TimeUnit.SECONDS);
+            boolean result = latch.await(5, TimeUnit.SECONDS);
             if (!result)
                 fail("Timeout");
         } catch (InterruptedException e) {

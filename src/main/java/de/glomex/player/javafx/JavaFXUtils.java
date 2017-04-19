@@ -38,25 +38,22 @@ public class JavaFXUtils {
 
         @Override
         public void onPlay() {
-            ensureFxThread( () -> {
-                playBtn.suppressCommands = true;
-                playBtn.setSelected(true);
-                playBtn.suppressCommands = false;
-            });
+            playBtn.setSelectedSuppressed(true);
         }
 
         @Override
         public void onPause() {
-            ensureFxThread( () -> {
-                playBtn.suppressCommands = true;
-                playBtn.setSelected(false);
-                playBtn.suppressCommands = false;
-            });
+            playBtn.setSelectedSuppressed(false);
         }
 
         @Override
         public void onSeek(double position) {
             ensureFxThread( () -> positionWidget.setText("At " + position) );
+        }
+
+        @Override
+        public void onFinished() {
+            playBtn.setSelectedSuppressed(true);
         }
 
     }
@@ -85,6 +82,14 @@ public class JavaFXUtils {
                         (value ? onFunction : offFunction).run();
                 }
             );
+        }
+
+        public void setSelectedSuppressed(boolean state) {
+            ensureFxThread( () -> {
+                suppressCommands = true;
+                setSelected(state);
+                suppressCommands = false;
+            });
         }
     }
 

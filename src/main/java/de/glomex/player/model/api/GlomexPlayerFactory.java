@@ -12,6 +12,15 @@ import de.glomex.player.model.events.SubscribeManager;
 import org.jetbrains.annotations.NotNull;
 
 /**
+ * This class kinda weird hack to emulate container.
+ * It binds beans to singletons created by glomex player.
+ * Those above are "static" components - which can't be changed during execution;
+ *
+ * Rest are dynamic, and can be replaced as actors with other instances. For last, there is
+ * instance() method here.
+ *
+ * Also used in tests to mockup whatever component needed.
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class GlomexPlayerFactory {

@@ -13,14 +13,11 @@ import java.util.concurrent.TimeUnit;
  */
 public class LifecycleFetcherTest extends PlayerTestCase {
 
-    LifecycleFetcher fetcher;
-
     public LifecycleFetcherTest() throws MalformedURLException {}
 
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        fetcher = GlomexPlayerFactory.instance(LifecycleFetcher.class);
     }
 
     public void testNormal() throws InterruptedException {
@@ -28,7 +25,8 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         etcController.adResolver( (mediaID) -> Collections.emptyList() );
 
         CountDownLatch latch = new CountDownLatch(1);
-        fetcher.startFetching(mediaID, (lifecycle) -> {
+
+        LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
             assertSame(media, lifecycle.media());
@@ -43,7 +41,7 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         etcController.adResolver( (mediaID) -> { throw new IllegalArgumentException("Emulate exception for test"); });
 
         CountDownLatch latch = new CountDownLatch(1);
-        fetcher.startFetching(mediaID, (lifecycle) -> {
+        LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
             assertSame(media, lifecycle.media());
@@ -58,7 +56,7 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         etcController.adResolver( mediaID -> { sleep(); return Collections.emptyList(); } );
 
         CountDownLatch latch = new CountDownLatch(1);
-        fetcher.startFetching(mediaID, (lifecycle) -> {
+        LifecycleFetcher fetcher = new LifecycleFetcher(mediaID, (lifecycle) -> {
             assertNotNull(lifecycle);
             assertEquals(mediaID, lifecycle.mediaID);
             assertNull(lifecycle.media());
@@ -67,6 +65,5 @@ public class LifecycleFetcherTest extends PlayerTestCase {
         });
         await(latch);
     }
-
 
 }

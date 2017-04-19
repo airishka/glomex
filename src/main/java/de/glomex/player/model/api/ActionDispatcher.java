@@ -8,6 +8,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class ActionDispatcher {
@@ -48,7 +49,7 @@ public class ActionDispatcher {
 
     private Object delegate(Object proxy, Method method, Object[] args) {
         synchronized (lock) {
-            log.finest(method.getName() + "(" + (args == null? "" : Arrays.toString(args)) + ")");
+            log.logp(Level.FINEST, method.getDeclaringClass().getSimpleName(), method.getName(), "", args);
             if (playbackDelegate != null)
                 try {
                     return method.invoke(playbackDelegate, args);

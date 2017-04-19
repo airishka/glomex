@@ -7,6 +7,7 @@ import de.glomex.player.api.lifecycle.MediaData;
 import de.glomex.player.api.playlist.MediaID;
 import de.glomex.player.model.api.EtcController;
 import de.glomex.player.model.api.ExecutionManager;
+import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.api.Logging;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,73 +30,68 @@ public class LifecycleFetcher {
 
     private static final Logger log = Logging.getLogger(LifecycleFetcher.class);
 
-    private final @NotNull ExecutionManager executor;
     private final @NotNull EtcController etcController;
     private final @NotNull LifecycleListener lifecycleListener;
 
-    private final CountDownLatch latch = new CountDownLatch(2);
     private @Nullable Consumer<Lifecycle> callback;
 
-    private Future<MediaData> mediaFuture;
-    private Future<List<AdData>> adsFuture;
+    private final @NotNull CountDownLatch latch = new CountDownLatch(2);
+    private final @NotNull Future<MediaData> mediaFuture;
+    private final @NotNull Future<List<AdData>> adsFuture;
 
-    private Lifecycle lifecycle;
+    private final @NotNull Lifecycle lifecycle;
 
-    @Inject
-    public LifecycleFetcher(
-        @NotNull ExecutionManager executor,
-        @NotNull EtcController etcController,
-        @NotNull LifecycleListener lifecycleListener
-    ) {
-        this.executor = executor;
-        this.etcController = etcController;
-        this.lifecycleListener = lifecycleListener;
-    }
+    public LifecycleFetcher(@NotNull MediaID mediaID, @Nullable Consumer<Lifecycle> callback) {
+        this.etcController = GlomexPlayerFactory.instance(EtcController.class);
+        this.lifecycleListener = GlomexPlayerFactory.instance(LifecycleListener.class);
 
-    public void startFetching(@NotNull MediaID mediaID, @Nullable Consumer<Lifecycle> callback) {
-        lifecycle = new Lifecycle(mediaID);
         this.callback = callback;
 
-        mediaFuture = executor.submit(() -> {
-            MediaData mediaData = null;
-            try {
-                mediaData = etcController.mediaResolver().resolve(mediaID);
-                lifecycle.media(mediaData);
-                lifecycleListener.onMediaResolved(mediaID);
-            } catch (RuntimeException error) {
-                log.severe("Error getting media " + mediaID + ": " + error.getMessage());
-                lifecycleListener.onMediaError(mediaID);
-                // N.B. cancel add loading if still running
-                adsFuture.cancel(true);
-                latch.countDown();
-            } finally {
-                latchDown();
-            }
-            return mediaData;
-        });
+        lifecycle = new Lifecycle(mediaID);
 
-        adsFuture = executor.submit(() -> {
-            List<AdData> ads = null;
-            try {
-                ads = etcController.adResolver().resolve(mediaID);
-                lifecycle.ads(ads);
-                lifecycleListener.onAdsResolved(mediaID);
-            } catch (RuntimeException error) {
-                log.warning("Error getting ads " + mediaID + ": " + error.getMessage());
-                log.warning("Skipping ads");
-                lifecycleListener.onAdError(mediaID);
-            } finally {
-                latchDown();
-            }
-            return ads;
-        });
+        ExecutionManager executor = GlomexPlayerFactory.instance(ExecutionManager.class);
+        mediaFuture = executor.submit(this::fetchMedia);
+        adsFuture = executor.submit(this::fetchAds);
+    }
+
+    private @Nullable MediaData fetchMedia() {
+        MediaData mediaData = null;
+        try {
+            mediaData = etcController.mediaResolver().resolve(lifecycle.mediaID);
+            lifecycle.media(mediaData);
+            lifecycleListener.onMediaResolved(lifecycle.mediaID);
+        } catch (RuntimeException error) {
+            log.severe("Error getting media " + lifecycle.mediaID + ": " + error.getMessage());
+            lifecycleListener.onMediaError(lifecycle.mediaID);
+            // N.B. cancel add loading if still running
+            adsFuture.cancel(true);
+            latch.countDown();
+        } finally {
+            latchDown();
+        }
+        return mediaData;
+    }
+
+    private @Nullable List<AdData> fetchAds() {
+        List<AdData> ads = null;
+        try {
+            ads = etcController.adResolver().resolve(lifecycle.mediaID);
+            lifecycle.ads(ads);
+            lifecycleListener.onAdsResolved(lifecycle.mediaID);
+        } catch (RuntimeException error) {
+            log.warning("Error getting ads " + lifecycle.mediaID + ": " + error.getMessage());
+            log.warning("Skipping ads");
+            lifecycleListener.onAdError(lifecycle.mediaID);
+        } finally {
+            latchDown();
+        }
+        return ads;
     }
 
     private void latchDown() {
         latch.countDown();
         if (callback != null && latch.getCount() == 0) {
             callback.accept(lifecycle);
-            callback = null;
             shutdown();
         }
     }
@@ -113,6 +109,7 @@ public class LifecycleFetcher {
     public void shutdown() {
         mediaFuture.cancel(true);
         adsFuture.cancel(true);
+        callback = null;
         // improve: future with interrupted seems more logical...
         latch.countDown();
         latch.countDown();

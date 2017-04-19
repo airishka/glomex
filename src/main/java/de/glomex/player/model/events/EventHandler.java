@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -99,7 +100,7 @@ public class EventHandler {
 
     private @Nullable Object invocationHandler(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
         // improve: do we need to block this until everything is completed?...
-        log.entering(method.getDeclaringClass().getSimpleName(), method.getName(), args);
+        log.logp(Level.FINER, method.getDeclaringClass().getSimpleName(), method.getName(), "", args);
         String message = createLogMessage(method, args);
         // Loggers, synchronous
         for (EventLogger logger: loggers)

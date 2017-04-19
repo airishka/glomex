@@ -13,4 +13,6 @@ public interface PlaybackListener extends ListenerTag {
     void onPause();
 
     void onSeek(double position);
+
+    void onFinished();
 }

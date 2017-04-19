@@ -66,8 +66,8 @@ public class LifecycleManagerTest extends PlayerTestCase {
         etcController.mediaResolver( mediaID -> media );
         etcController.adResolver( mediaID -> ads  );
 
-        LifecycleManager lifecycleManager = GlomexPlayerFactory.instance(LifecycleManager.class);
-        lifecycleManager.open(mediaId);
+        LifecycleManager lifecycleManager = new LifecycleManager(mediaId);
+
 
         // fixme: add waiting method
         //Lifecycle lifecycle = lifecycleManager.lifecycle;
