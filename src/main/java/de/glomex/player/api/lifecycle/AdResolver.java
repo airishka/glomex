@@ -14,6 +14,9 @@ import java.util.List;
 @SuppressWarnings("UnusedDeclaration")
 public interface AdResolver {
 
+    /**
+     * Must either return value or throw an exception
+     */
     @NotNull List<Advertise> resolve(@NotNull MediaID mediaID);
 
 }

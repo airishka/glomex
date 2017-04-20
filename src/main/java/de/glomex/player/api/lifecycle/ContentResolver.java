@@ -11,6 +11,9 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("UnusedDeclaration")
 public interface ContentResolver {
 
-    @Nullable Content resolve(@NotNull MediaID mediaID);
+    /**
+     * Must either return content or throw an exception.
+     */
+    @NotNull Content resolve(@NotNull MediaID mediaID);
 
 }

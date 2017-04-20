@@ -31,6 +31,13 @@ public class ExecutionManager implements Executor {
         }
     }
 
+    @SuppressWarnings("unchecked")
+    public void executeAll(@NotNull Callable... tasks) {
+        ExecutorCompletionService executorCompletionService = new ExecutorCompletionService(executor);
+        for (Callable task: tasks)
+            executorCompletionService.submit(task);
+    }
+
     public @NotNull <T> Future<T> submit(@NotNull Callable<T> task) {
         return executor.submit(task);
     }

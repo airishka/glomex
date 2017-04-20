@@ -43,7 +43,7 @@ public abstract class PlayerTestCase extends TestCase {
 
     protected void await(CountDownLatch latch) {
         try {
-            boolean result = latch.await(5, TimeUnit.SECONDS);
+            boolean result = latch.await(10, TimeUnit.SECONDS);
             if (!result)
                 fail("Timeout");
         } catch (InterruptedException e) {
@@ -51,12 +51,13 @@ public abstract class PlayerTestCase extends TestCase {
         }
     }
 
-    protected void sleep() {
+    protected boolean sleep(int seconds) {
         try {
-            Thread.sleep(TimeUnit.SECONDS.toMillis(100));
-            fail("Must be interrupted");
+            Thread.sleep(TimeUnit.SECONDS.toMillis(seconds));
+            return true;
         } catch (InterruptedException ignored) {
         }
+        return false;
     }
 
 }

@@ -36,7 +36,8 @@ public class LifecycleManager {
         this.actionDispatcher = GlomexPlayerFactory.instance(ActionDispatcher.class);
 
         lifecycleListener.onLifecycleStarted(mediaID);
-        lifecycleFetcher = new LifecycleFetcher(mediaID, this::lifecycle);
+        lifecycleFetcher = new LifecycleFetcher(mediaID);
+        lifecycleFetcher.fetch(this::lifecycle);
     }
 
     private void lifecycle(@NotNull Lifecycle lifecycle) {
@@ -52,11 +53,6 @@ public class LifecycleManager {
         // todo: add /register/ itself as playback listener
         // todo: iterate via content and add
         playItem(); // mock
-    }
-
-    private void complete(@NotNull MediaID mediaID) {
-        lifecycleListener.onLifecycleCompleted(mediaID);
-        shutdown();
     }
 
     private void playItem() {
@@ -86,6 +82,11 @@ public class LifecycleManager {
 
         if (shouldPlay)
             coming.play();
+    }
+
+    private void complete(@NotNull MediaID mediaID) {
+        lifecycleListener.onLifecycleCompleted(mediaID);
+        shutdown();
     }
 
     public void shutdown() {

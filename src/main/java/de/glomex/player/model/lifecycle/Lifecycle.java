@@ -28,7 +28,7 @@ public class Lifecycle {
         this.mediaID = mediaID;
     }
 
-    void content(Content content) {
+    void content(@NotNull Content content) {
         this.content = content;
     }
 
