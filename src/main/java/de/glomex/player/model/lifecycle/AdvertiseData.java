@@ -5,8 +5,11 @@ import de.glomex.player.api.media.Advertise;
 import de.glomex.player.api.media.MediaID;
 import de.glomex.player.model.media.MediaUUID;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Optional;
 
 /**
  * TODO: add priority
@@ -21,12 +24,13 @@ public class AdvertiseData implements Advertise {
     protected Long time;
 
     // mock: for tests
-    public AdvertiseData(String time) {
-        this(new AdPosition(time));
+    public AdvertiseData(URL url, String time) throws MalformedURLException {
+        this(url, new AdPosition(time));
     }
 
     // mock: for tests
-    public AdvertiseData(AdPosition position) {
+    public AdvertiseData(URL url, AdPosition position) throws MalformedURLException {
+        metadataURL = url;
         id = new MediaUUID();
         this.position = position;
     }
@@ -49,14 +53,14 @@ public class AdvertiseData implements Advertise {
     }
 
     @Override
-    public AdPosition position() {
+    public @NotNull AdPosition position() {
         return position;
     }
 
     /**
      * Cap value to duration passed.
      */
-    public Long resolve(Long duration) {
+    @NotNull AdvertiseData resolve(@Nullable Long duration) {
         if (position.isRelative()) {
             //noinspection ConstantConditions
             if (duration == null)
@@ -68,18 +72,18 @@ public class AdvertiseData implements Advertise {
             if (duration != null)
                 time = Math.min(duration, time);
         }
-        return time;
+        return this;
     }
 
-    public boolean scheduled() {
+    boolean scheduled() {
         return time != null;
     }
 
-    public Long time() {
+    @Nullable Long time() {
         return time;
     }
 
-    public long order() {
+    long order() {
         return time != null ? time * 10 + (position.isRelative()? 0 : 1) : Long.MAX_VALUE;
     }
 

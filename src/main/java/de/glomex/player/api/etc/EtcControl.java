@@ -22,6 +22,9 @@ public interface EtcControl extends ControlTag {
 
     void setAutoPlay(boolean state);
 
-    void shutdown(@Nullable Callback callback);
+    // automatically exit when playlist is empty
+    void setAutoShutdown(boolean state);
+
+    void shutdown();
 
 }

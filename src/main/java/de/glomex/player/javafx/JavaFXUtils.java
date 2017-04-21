@@ -1,10 +1,9 @@
 package de.glomex.player.javafx;
 
-import de.glomex.player.api.etc.Callback;
 import de.glomex.player.api.events.SubscribeControl;
 import de.glomex.player.api.playback.PlaybackControl;
-import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.api.Logging;
+import de.glomex.player.model.playback.EmptyPlaybackListener;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.geometry.Pos;
@@ -26,7 +25,7 @@ public class JavaFXUtils {
 
     private static final Logger log = Logging.getLogger(JavaFXUtils.class);
 
-    static class JavaFXPlaybackListener implements PlaybackListener {
+    static class JavaFXPlaybackListener extends EmptyPlaybackListener {
 
         private final ImprovedButton playBtn;
         private final Text positionWidget;
@@ -47,7 +46,7 @@ public class JavaFXUtils {
         }
 
         @Override
-        public void onSeek(double position) {
+        public void onSeek(long position) {
             ensureFxThread( () -> positionWidget.setText("At " + position) );
         }
 

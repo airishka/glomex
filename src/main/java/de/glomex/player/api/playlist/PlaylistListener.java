@@ -14,6 +14,6 @@ public interface PlaylistListener extends ListenerTag {
 
     void onNext(@NotNull MediaID mediaID);
 
-    void onFinished();
+    void onPlaylistFinished();
 
 }

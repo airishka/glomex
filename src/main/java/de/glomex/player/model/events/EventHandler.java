@@ -1,11 +1,13 @@
 package de.glomex.player.model.events;
 
 import de.glomex.player.api.ListenerTag;
+import de.glomex.player.api.etc.ShutdownListener;
 import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.api.playlist.PlaylistListener;
 import de.glomex.player.model.api.ExecutionManager;
 import de.glomex.player.model.api.Logging;
+import de.glomex.player.model.player.PlayerListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,7 +48,13 @@ public class EventHandler {
 
     private static final Logger log = Logging.getLogger(EventHandler.class);
 
-    static final Class[] types = new Class[] {PlaylistListener.class, LifecycleListener.class, PlaybackListener.class};
+    static final Class[] types = new Class[] {
+        PlaylistListener.class,
+        LifecycleListener.class,
+        PlaybackListener.class,
+        PlayerListener.class,
+        ShutdownListener.class
+    };
 
     @SuppressWarnings("unchecked")
     static final List<Class<? extends ListenerTag>> listenerTypes = Arrays.asList(types);
@@ -90,6 +98,14 @@ public class EventHandler {
         return listener(LifecycleListener.class);
     }
 
+    public @NotNull PlayerListener playerListener() {
+        return listener(PlayerListener.class);
+    }
+
+    public @NotNull ShutdownListener shutdownListener() {
+        return listener(ShutdownListener.class);
+    }
+
     @SuppressWarnings("unchecked")
     public @NotNull <L extends ListenerTag> L listener(@NotNull Class<L> type) {
         // should be assert - this is internal development error
@@ -100,7 +116,7 @@ public class EventHandler {
 
     private @Nullable Object invocationHandler(@NotNull Object proxy, @NotNull Method method, @Nullable Object[] args) {
         // improve: do we need to block this until everything is completed?...
-        log.logp(Level.FINER, method.getDeclaringClass().getSimpleName(), method.getName(), "", args);
+        log.logp(Level.FINER, method.getDeclaringClass().getSimpleName(), method.getName(), "", Arrays.toString(args));
         String message = createLogMessage(method, args);
         // Loggers, synchronous
         for (EventLogger logger: loggers)

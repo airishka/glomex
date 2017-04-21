@@ -9,6 +9,8 @@ import de.glomex.player.api.lifecycle.LifecycleListener;
 import de.glomex.player.api.playback.PlaybackListener;
 import de.glomex.player.model.events.EventHandler;
 import de.glomex.player.model.events.SubscribeManager;
+import de.glomex.player.model.player.MediaPlayerFactory;
+import de.glomex.player.model.player.PlayerListener;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -36,16 +38,19 @@ public class GlomexPlayerFactory {
         @Override
         protected void configure() {
             bind(GlomexPlayer.class).toInstance(glomexPlayer);
-            bind(ExecutionManager.class).toInstance(glomexPlayer.executionManager());
+            bind(ExecutionManager.class).toInstance(glomexPlayer.executionManager);
+            bind(MediaPlayerFactory.class).toInstance(glomexPlayer.mediaPlayerFactory);
 
-            bind(ActionDispatcher.class).toInstance(glomexPlayer.actionDispatcher());
-            bind(EventHandler.class).toInstance(glomexPlayer.eventHandler());
-//            bind(SubscribeControl.class).toInstance(glomexPlayer.subscribeManager());
+            bind(ActionDispatcher.class).toInstance(glomexPlayer.actionDispatcher);
+            bind(EventHandler.class).toInstance(glomexPlayer.eventHandler);
+            bind(SubscribeControl.class).toInstance(glomexPlayer.subscribeManager);
+            bind(SubscribeManager.class).toInstance(glomexPlayer.subscribeManager);
 
-            bind(EtcControl.class).toInstance(glomexPlayer.etcController());
-            bind(EtcController.class).toInstance((EtcController) glomexPlayer.etcController());
-            bind(LifecycleListener.class).toInstance(glomexPlayer.eventHandler().lifecycleListener());
-            bind(PlaybackListener.class).toInstance(glomexPlayer.eventHandler().playbackListener());
+            bind(EtcControl.class).toInstance(glomexPlayer.etcController);
+            bind(EtcController.class).toInstance(glomexPlayer.etcController);
+            bind(LifecycleListener.class).toInstance(glomexPlayer.eventHandler.lifecycleListener());
+            bind(PlaybackListener.class).toInstance(glomexPlayer.eventHandler.playbackListener());
+            bind(PlayerListener.class).toInstance(glomexPlayer.eventHandler.playerListener());
         }
     }
 

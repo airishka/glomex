@@ -9,6 +9,9 @@ import java.util.*;
 /**
  * Listener can implements few types at once.
  *
+ * FIXME: create separate list for internal listeners, having priority,
+ * FIXME: OR, alternatively, make internals implement some TAG i/f and resort on add
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class SubscribeManager implements SubscribeControl {
@@ -58,4 +61,9 @@ public class SubscribeManager implements SubscribeControl {
             return listeners.containsKey(type) ? (Set<L>) listeners.get(type) : Collections.<L>emptySet();
         }
     }
+
+    public void shutdown() {
+        listeners.clear();
+    }
+
 }

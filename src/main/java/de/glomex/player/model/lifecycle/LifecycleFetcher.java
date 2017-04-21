@@ -1,24 +1,14 @@
 package de.glomex.player.model.lifecycle;
 
-import de.glomex.player.api.media.Advertise;
 import de.glomex.player.api.lifecycle.LifecycleListener;
-import de.glomex.player.api.media.Content;
 import de.glomex.player.api.media.MediaID;
 import de.glomex.player.model.api.EtcController;
-import de.glomex.player.model.api.ExecutionManager;
 import de.glomex.player.model.api.GlomexPlayerFactory;
 import de.glomex.player.model.api.Logging;
-import de.glomex.player.model.media.ContentInfo;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
-import java.util.Optional;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.Future;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
@@ -39,7 +29,7 @@ public class LifecycleFetcher {
 
     private Future<Void> future;
 
-    public LifecycleFetcher(@NotNull MediaID mediaID) {
+    LifecycleFetcher(@NotNull MediaID mediaID) {
         lifecycle = new Lifecycle(mediaID);
     }
 
@@ -56,7 +46,7 @@ public class LifecycleFetcher {
                 } else {
                     log.warning("Error resolving ads: " + error.getMessage());
                     log.warning("Skipping ads");
-                    lifecycleListener.onAdsError(lifecycle.mediaID);
+                    lifecycleListener.onAdsError(lifecycle.mediaID, error.getMessage());
                 }
                 return null;
             });
@@ -69,7 +59,7 @@ public class LifecycleFetcher {
                     lifecycleListener.onContentResolved(lifecycle.mediaID);
                 } else {
                     log.severe("Error resolving content: " + error.getMessage());
-                    lifecycleListener.onContentError(lifecycle.mediaID);
+                    lifecycleListener.onContentError(lifecycle.mediaID, error.getMessage());
                     adsFuture.cancel(false);
                 }
                 return null;
@@ -77,8 +67,14 @@ public class LifecycleFetcher {
 
         future = CompletableFuture
             .allOf(adsFuture, contentFuture)
-            .exceptionally(error -> null)
-            .thenRun(() -> callback.accept(lifecycle));
+            .exceptionally(error -> {
+                if (!(error.getCause() instanceof CancellationException))
+                    log.severe("Exception in resolvers: " + error.getMessage());
+                return null;
+            })
+            .thenRun(() ->
+                callback.accept(lifecycle
+                ));
     }
 
     public void shutdown() {

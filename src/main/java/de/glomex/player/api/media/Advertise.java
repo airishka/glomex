@@ -11,10 +11,9 @@ import java.net.URL;
 public interface Advertise extends Media {
 
     /** URL to get ad metadata */
-    @NotNull
-    URL url();
+    @NotNull URL url();
 
     /** Ad Placement */
-    AdPosition position();
+    @NotNull AdPosition position();
 
 }

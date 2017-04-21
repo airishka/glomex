@@ -13,11 +13,11 @@ public interface LifecycleListener extends ListenerTag {
 
     void onContentResolved(@NotNull MediaID mediaID);
 
-    void onContentError(@NotNull MediaID mediaID);
+    void onContentError(@NotNull MediaID mediaID, @NotNull String message);
 
     void onAdsResolved(@NotNull MediaID mediaID);
 
-    void onAdsError(@NotNull MediaID mediaID);
+    void onAdsError(@NotNull MediaID mediaID, @NotNull String message);
 
     void onContentStarted(@NotNull MediaID mediaID);
 
@@ -31,5 +31,5 @@ public interface LifecycleListener extends ListenerTag {
 
     void onLifecycleCompleted(@NotNull MediaID mediaID);
 
-    void onLifecycleError(@NotNull MediaID mediaID);
+    void onLifecycleError(@NotNull MediaID mediaID, @NotNull String message);
 }

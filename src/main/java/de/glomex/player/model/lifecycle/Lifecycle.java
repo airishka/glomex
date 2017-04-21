@@ -22,7 +22,7 @@ public class Lifecycle {
     public final MediaID mediaID;
 
     private @Nullable Content content;
-    private @Nullable List<AdvertiseData> ads;
+    private @Nullable List<Advertise> ads;
 
     public Lifecycle(@NotNull MediaID mediaID) {
         this.mediaID = mediaID;
@@ -37,40 +37,11 @@ public class Lifecycle {
     }
 
     void ads(@NotNull List<Advertise> ads) {
-        this.ads = ads.stream()
-            .<AdvertiseData>map(AdvertiseData::new)
-            .collect(Collectors.toList());
+        this.ads = ads;
     }
 
-    public @Nullable List<AdvertiseData> ads() {
+    public @Nullable List<Advertise> ads() {
         return ads;
     }
 
-    // must be only called when content is obtained
-    public void resolve() {
-        if (ads == null)
-            return;
-
-        //noinspection ConstantConditions
-        if (!content.isStream() && content.duration() < 1)
-            throw new IllegalArgumentException("Content duration must be greater than zero");
-
-        ads.stream()
-            .forEach(ad -> ad.resolve(content.duration()));
-
-        ads = ads.stream()
-            .filter(AdvertiseData::scheduled)
-            .sorted(Comparator.comparingLong(AdvertiseData::order))
-            .collect(Collectors.toList());
-    }
-
-    public List<Long> stops() {
-        return ads == null?
-            Collections.emptyList() :
-            ads.stream().map(AdvertiseData::time).collect(Collectors.toList());
-    }
-
-    public boolean ready() {
-        return content != null && ads != null;
-    }
 }

@@ -23,7 +23,7 @@ public abstract class PlayerFactory<UI_IN, UI_OUT> {
         ServiceLoader<PlayerFactory> loader = ServiceLoader.load(PlayerFactory.class);
         Iterator<PlayerFactory> implementations = loader.iterator();
         if (!implementations.hasNext())
-            throw new IllegalArgumentException("No PlayerAPI implementation is registered using META-INF services");
+            throw new IllegalArgumentException("No implementation is registered using META-INF services" + PlayerFactory.class);
 
         @SuppressWarnings("unchecked")
         PlayerFactory<UI_IN, UI_OUT> factory = implementations.next();

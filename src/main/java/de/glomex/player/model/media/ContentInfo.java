@@ -28,7 +28,7 @@ public class ContentInfo implements Content {
         this.id = id;
         this.url = url;
         this.duration = duration;
-        isStream = duration != null; // fixme
+        isStream = duration == null; // fixme
     }
 
     @Override

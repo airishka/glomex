@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.MalformedURLException;
 import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Created by <b>me@olexxa.com</b>
@@ -30,15 +31,14 @@ public class PlaylistTest extends PlayerTestCase {
     public void setUp() throws Exception {
         super.setUp();
 
-        playlist = glomexPlayer.playlistManager();
-        glomexPlayer.subscribeManager().registerListener(new PlaylistListener() {
-            public void onChanged() {}
+        glomexPlayer.etcController().contentResolver(mediaID->content);
+        glomexPlayer.etcController().adResolver(mediaID->Collections.emptyList());
+        playlist = new PlaylistManager(new EmptyPlaylistListener() {
             public void onNext(@NotNull MediaID mediaID) {
                 current = mediaID;
             }
-            public void onFinished() {}
+            public void onPlaylistFinished() { Thread.currentThread().interrupt(); }
         });
-
     }
 
     private MediaID waitAssertSame(MediaID specimen) {

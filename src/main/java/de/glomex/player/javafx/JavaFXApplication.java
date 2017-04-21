@@ -2,6 +2,7 @@ package de.glomex.player.javafx;
 
 import de.glomex.player.api.PlayerAPI;
 import de.glomex.player.api.PlayerFactory;
+import de.glomex.player.api.etc.ShutdownListener;
 import de.glomex.player.model.api.Logging;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -47,8 +48,10 @@ public class JavaFXApplication extends Application {
                 );
                 Scene scene = new Scene(pane);
                 stage.setScene(scene);
-                stage.setOnCloseRequest((event) -> api.etcController().shutdown(Platform::exit));
+                stage.setOnCloseRequest((event) -> api.etcController().shutdown());
                 stage.show();
+
+                api.subscribeManager().registerListener((ShutdownListener) Platform::exit);
 
                 initializeAPI(api, playerComponent);
             }

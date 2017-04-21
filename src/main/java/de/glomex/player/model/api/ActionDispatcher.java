@@ -39,7 +39,7 @@ public class ActionDispatcher {
         return playbackDelegate;
     }
 
-    public PlaybackControl playbackController(@NotNull PlaybackControl delegate) {
+    public PlaybackControl switchController(@NotNull PlaybackControl delegate) {
         synchronized (lock) {
             log.fine("Set delegate: " + delegate);
             PlaybackControl previous = this.playbackDelegate;

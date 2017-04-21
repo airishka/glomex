@@ -186,15 +186,17 @@ public class PlaylistManager extends EmptyLifecycleListener implements PlaylistC
     }
 
     @Override
-    public void onLifecycleError(@NotNull MediaID mediaID) {
+    public void onLifecycleError(@NotNull MediaID mediaID, @NotNull String message) {
         doNext(mediaID);
     }
+
     @Override
     public void onLifecycleCompleted(@NotNull MediaID mediaID) {
         doNext(mediaID);
     }
 
     private void doNext(@NotNull MediaID mediaID) {
+        statuses.put(mediaID, Status.played);
         synchronized (lock) {
             if (mediaID.equals(current))
                 next();
@@ -218,7 +220,7 @@ public class PlaylistManager extends EmptyLifecycleListener implements PlaylistC
 
             MediaID coming = mediaFinder.get();
             if (coming == null) {
-                playlistListener.onFinished();
+                playlistListener.onPlaylistFinished();
                 return false;
             } else {
                 skipTo(coming, add2History);
@@ -227,16 +229,18 @@ public class PlaylistManager extends EmptyLifecycleListener implements PlaylistC
         }
     }
 
+    private boolean nonPlayed(@NotNull MediaID mediaID) {
+        Status s = statuses.get(mediaID);
+        return s == null || Status.nonPlayed == s;
+    }
+
     // outer synchronization required
     // todo: could be enforced with ReentranceLock, but this will pollute code with dev-time checks
     private MediaID findNext() {
         Integer nextIndex = null;
         if (!repeatable) {
             Stream<MediaID> stream = playlist.stream()
-                .filter(mediaID -> {
-                    Status s = statuses.get(mediaID);
-                    return s == null || Status.nonPlayed == s;
-                });
+                .filter(this::nonPlayed);
             if (random) {
                 List<Integer> nonPlayed = stream
                     .map(playlist::indexOf)
@@ -251,12 +255,13 @@ public class PlaylistManager extends EmptyLifecycleListener implements PlaylistC
                     .map(content -> {
                         int i = playlist.indexOf(content) - currentIndex;
                         if (i < 0)
-                            i += currentIndex;
+                            i += playlist.size();
                         return i;
                     })
                     .min(Comparator.<Integer>naturalOrder())
-                    .map(index -> index + currentIndex)
+                    .map(index -> (index + currentIndex) % playlist.size())
                     .orElse(null);
+                log.finest("Next Index: " + nextIndex);
             }
         } else {
             if (random)

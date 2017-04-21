@@ -1,6 +1,6 @@
 package de.glomex.player.model.api;
 
-import de.glomex.player.api.etc.Callback;
+import de.glomex.player.api.etc.ShutdownListener;
 import de.glomex.player.api.etc.EtcControl;
 import de.glomex.player.api.lifecycle.AdResolver;
 import de.glomex.player.api.lifecycle.ContentResolver;
@@ -20,6 +20,7 @@ public class EtcController implements EtcControl {
     private AdResolver adResolver;
     private boolean autoplay;
     private boolean fullscreen;
+    private boolean autoShutdown;
 
     public EtcController(@NotNull GlomexPlayer glomexPlayer) {
         this.glomexPlayer = glomexPlayer;
@@ -49,10 +50,17 @@ public class EtcController implements EtcControl {
     }
 
     @Override
-    public void shutdown(@Nullable Callback callback) {
+    public void setAutoShutdown(boolean state) {
+        autoShutdown = state;
+    }
+
+    public boolean autoShutdown() {
+        return autoShutdown;
+    }
+
+    @Override
+    public void shutdown() {
         glomexPlayer.shutdown();
-        if (callback != null)
-            callback.callback();
     }
 
     @Override

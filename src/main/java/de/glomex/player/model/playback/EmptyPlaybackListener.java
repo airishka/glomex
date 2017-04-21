@@ -1,11 +1,15 @@
 package de.glomex.player.model.playback;
 
 import de.glomex.player.api.playback.PlaybackListener;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public class EmptyPlaybackListener implements PlaybackListener {
+public abstract class EmptyPlaybackListener implements PlaybackListener {
+
+    @Override
+    public void onReady() {}
 
     @Override
     public void onPlay() {}
@@ -14,7 +18,10 @@ public class EmptyPlaybackListener implements PlaybackListener {
     public void onPause() {}
 
     @Override
-    public void onSeek(double position) {}
+    public void onSeek(long position) {}
+
+    @Override
+    public void onError(@NotNull String message) {}
 
     @Override
     public void onFinished() {}

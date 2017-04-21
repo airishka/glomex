@@ -38,6 +38,8 @@ public abstract class PlayerTestCase extends TestCase {
         );
 
         glomexPlayer = GlomexPlayerFactory.create();
+        glomexPlayer.etcController().setAutoPlay(false);
+        glomexPlayer.etcController().setAutoShutdown(false);
         etcController = GlomexPlayerFactory.instance(EtcController.class);
     }
 

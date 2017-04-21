@@ -13,13 +13,13 @@ public abstract class EmptyLifecycleListener implements LifecycleListener {
     public void onContentResolved(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onContentError(@NotNull MediaID mediaID) {}
+    public void onContentError(@NotNull MediaID mediaID, @NotNull String message) {}
 
     @Override
     public void onAdsResolved(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onAdsError(@NotNull MediaID mediaID) {}
+    public void onAdsError(@NotNull MediaID mediaID, @NotNull String message) {}
 
     @Override
     public void onContentStarted(@NotNull MediaID mediaID) {}
@@ -40,6 +40,6 @@ public abstract class EmptyLifecycleListener implements LifecycleListener {
     public void onLifecycleCompleted(@NotNull MediaID mediaID) {}
 
     @Override
-    public void onLifecycleError(@NotNull MediaID mediaID) {}
+    public void onLifecycleError(@NotNull MediaID mediaID, @NotNull String message) {}
 
 }
