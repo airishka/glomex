@@ -125,7 +125,10 @@ public class EventHandler {
         // Callbacks
         @SuppressWarnings("unchecked")
         Class<? extends ListenerTag> type = (Class<? extends ListenerTag>) method.getDeclaringClass();
-        for (ListenerTag listener: subscribeManager.get(type))
+        for (ListenerTag listener: subscribeManager.internals(type))
+            proceed(listener, method, args);
+
+        for (ListenerTag listener: subscribeManager.externals(type))
             proceed(listener, method, args);
 
         // Tracker

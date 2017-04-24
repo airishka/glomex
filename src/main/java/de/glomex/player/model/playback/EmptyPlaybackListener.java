@@ -1,12 +1,13 @@
 package de.glomex.player.model.playback;
 
 import de.glomex.player.api.playback.PlaybackListener;
+import de.glomex.player.model.InternalTag;
 import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by <b>me@olexxa.com</b>
  */
-public abstract class EmptyPlaybackListener implements PlaybackListener {
+public abstract class EmptyPlaybackListener implements PlaybackListener, InternalTag {
 
     @Override
     public void onReady() {}

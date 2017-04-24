@@ -1,5 +1,6 @@
 package de.glomex.player.javafx;
 
+import de.glomex.player.api.media.Advertise;
 import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.player.MediaPlayerAdapter;
 import javafx.scene.media.Media;
@@ -19,13 +20,17 @@ public class JavaFXMediaPlayer extends MediaPlayerAdapter<MediaPlayer> {
 
     protected @NotNull MediaPlayer fxPlayer;
 
+    protected boolean playingAd;
+
     public JavaFXMediaPlayer(@NotNull de.glomex.player.api.media.Media media) {
+        playingAd = media instanceof Advertise;
         Media fxMedia = new Media(media.url().toExternalForm());
         fxPlayer = new MediaPlayer(fxMedia);
         fxPlayer.setOnReady(this::onReady);
         fxPlayer.setOnPlaying(this::onPlay);
         fxPlayer.setOnPaused(this::onPause);
         fxPlayer.setOnStalled(this::onStalled);
+        fxPlayer.setOnError(this::onError);
         fxPlayer.setOnEndOfMedia(this::onFinished);
     }
 
@@ -46,10 +51,11 @@ public class JavaFXMediaPlayer extends MediaPlayerAdapter<MediaPlayer> {
 
     @Override
     public void seek(long position) {
-        JavaFXUtils.ensureFxThread( () -> {
-            fxPlayer.seek(new Duration(position));
-            playbackListener.onSeek(position);
-        });
+        if (!playingAd)
+            JavaFXUtils.ensureFxThread( () -> {
+                fxPlayer.seek(new Duration(position));
+                playbackListener.onSeek(position);
+            });
     }
 
     @Override
@@ -60,6 +66,12 @@ public class JavaFXMediaPlayer extends MediaPlayerAdapter<MediaPlayer> {
     @Override
     public void shutdown() {
         JavaFXUtils.ensureFxThread(fxPlayer::dispose);
+    }
+
+    void onError() {
+        //noinspection ThrowableResultOfMethodCallIgnored
+        playbackListener.onError(fxPlayer.getError().getMessage());
+        shutdown();
     }
 
 }

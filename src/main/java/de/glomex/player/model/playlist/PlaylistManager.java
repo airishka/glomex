@@ -3,6 +3,7 @@ package de.glomex.player.model.playlist;
 import de.glomex.player.api.media.MediaID;
 import de.glomex.player.api.playlist.PlaylistControl;
 import de.glomex.player.api.playlist.PlaylistListener;
+import de.glomex.player.model.InternalTag;
 import de.glomex.player.model.api.Logging;
 import de.glomex.player.model.lifecycle.EmptyLifecycleListener;
 import de.glomex.player.model.lifecycle.LifecycleManager;
@@ -30,7 +31,7 @@ import java.util.stream.Stream;
  *
  * Created by <b>me@olexxa.com</b>
  */
-public class PlaylistManager extends EmptyLifecycleListener implements PlaylistControl {
+public class PlaylistManager extends EmptyLifecycleListener implements PlaylistControl, InternalTag {
 
     private static final Logger log = Logging.getLogger(PlaylistManager.class);
 

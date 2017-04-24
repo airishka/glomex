@@ -29,4 +29,5 @@ public abstract class MediaPlayerFactory<P extends MediaPlayer> {
 
     public abstract @NotNull P createPlayer(@NotNull Media media);
 
+    public abstract void activate(@NotNull P player);
 }

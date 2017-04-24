@@ -65,9 +65,16 @@ public class JavaFXPlayerAPIFactory extends PlayerFactory<Stage, Node> {
         });
         api.subscribeManager().registerListener(new PlayerListener<JavaFXMediaPlayer>() {
             @Override
-            public void onCreated(@NotNull JavaFXMediaPlayer player) {
+            public void onCreated(@NotNull JavaFXMediaPlayer player) {}
+
+            @Override
+            public void onActivated(@NotNull JavaFXMediaPlayer player) {
+                embed(player);
+            }
+
+            private void embed(JavaFXMediaPlayer player) {
                 JavaFXUtils.ensureFxThread(() ->
-                    mediaView.setMediaPlayer(player.component())
+                        mediaView.setMediaPlayer(player.component())
                 );
             }
         });

@@ -19,6 +19,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
 
 /**
+ * TODO: MediaPlayerFactory & player - move to separate actor.
+ *
  * Created by <b>me@olexxa.com</b>
  */
 public class LifecycleExecutor {
@@ -28,15 +30,18 @@ public class LifecycleExecutor {
     private final @NotNull ActionDispatcher actionDispatcher;
     private final @NotNull SubscribeManager subscribeManager;
     private final @NotNull LifecycleListener lifecycleListener;
+    private final @NotNull MediaPlayerFactory mediaPlayerFactory;
 
     private final @NotNull PlaybackListener playbackListener;
-    private final @NotNull MediaPlayer mediaPlayer;
+    private final @NotNull MediaPlayer contentPlayer;
+    private MediaPlayer player;
 
     private final @NotNull ResolvedLifecycle lifecycle;
     private final @NotNull Consumer<MediaID> callback;
 
     private Playing playing;
     private Media current;
+    private long position;
 
     boolean played; // mock: remove
 
@@ -49,13 +54,13 @@ public class LifecycleExecutor {
         this.lifecycle = lifecycle;
         this.callback = callback;
 
-        playbackListener = createPlaybackListener(callback);
+        playbackListener = createPlaybackListener();
 
-        MediaPlayerFactory mediaPlayerFactory = GlomexPlayerFactory.instance(MediaPlayerFactory.class);
-        mediaPlayer = mediaPlayerFactory.createPlayer(lifecycle.content());
+        mediaPlayerFactory = GlomexPlayerFactory.instance(MediaPlayerFactory.class);
+        contentPlayer = mediaPlayerFactory.createPlayer(lifecycle.content());
     }
 
-    private PlaybackListener createPlaybackListener(@NotNull Consumer<MediaID> callback) {
+    private PlaybackListener createPlaybackListener() {
         PlaybackListener playbackListener = new EmptyPlaybackListener() {
             @Override
             public void onReady() {
@@ -69,9 +74,10 @@ public class LifecycleExecutor {
 
             @Override
             public void onError(@NotNull String message) {
-                if (playing == Playing.content)
+                if (playing == Playing.content) {
                     lifecycleListener.onContentError(current.id(), message);
-                else
+                    shutdown();
+                } else
                     next();
             }
 
@@ -91,12 +97,48 @@ public class LifecycleExecutor {
     }
 
     public void start() {
+        PlaybackControl previous = actionDispatcher.playbackDelegate();
+        position = previous.getPosition();
+        // if such functionality is needed, it may bypass pre-rolls
+
         next();
-        PlaybackControl previous = actionDispatcher.switchController(mediaPlayer);
-        mediaPlayer.seek(previous.getPosition()); // api calls may seek(), so position to be restored
+
         if (shouldStart(previous))
-            mediaPlayer.play();
-        // todo: onContentStarted? or later after callback?
+            contentPlayer.play();
+    }
+
+    private void next() { // mock: remove
+        if (player != null && player != contentPlayer)
+            player.shutdown();
+
+        nextMedia();
+
+        if (current == null) {
+            callback.accept(lifecycle.mediaID);
+            shutdown();
+            return;
+        }
+
+        if (playing == Playing.content || mediaPlayerFactory.reusable()) {
+            player = contentPlayer;
+            // fixme: implement logic for reusable player
+        } else {
+            player = mediaPlayerFactory.createPlayer(current);
+        }
+        // todo: deactivate previous :)
+        //noinspection unchecked
+        mediaPlayerFactory.activate(player);
+        actionDispatcher.switchController(player);
+        if (playing == Playing.content) {
+            player.seek(position); // api calls may seek(), so position to be restored
+        }
+        player.play();
+    }
+
+    private void nextMedia() {
+        // fixme: find next lifecycle media by position
+        playing = Playing.content;
+        current = played? null : lifecycle.content;
     }
 
     private boolean shouldStart(@Nullable PlaybackControl previous) {
@@ -121,18 +163,9 @@ public class LifecycleExecutor {
         PlaybackControl previous = actionDispatcher.switchController(coming);
         coming.shouldPlay(previous.isPlaying());
 
-        mediaPlayer.shutdown();
-    }
-
-    private void next() { // mock: remove
-        // fixme: implement this
-        playing = Playing.content;
-        current = lifecycle.content;
-
-        if (played) { // mock: remove
-            callback.accept(current.id());
-            shutdown();
-        }
+        contentPlayer.shutdown();
+        if (player != contentPlayer)
+            player.shutdown();
     }
 
 }

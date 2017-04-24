@@ -25,12 +25,20 @@ public class JavaFXMediaPlayerFactory extends MediaPlayerFactory<JavaFXMediaPlay
     public @NotNull JavaFXMediaPlayer createPlayer(@NotNull Media media) {
         JavaFXMediaPlayer fxPlayer = new JavaFXMediaPlayer(media);
 
-        // This can't be move into constructor - it's not created yet
+        // This can't be moved into constructor - it's not created yet
         @SuppressWarnings("unchecked")
         PlayerListener<JavaFXMediaPlayer> playerListener = GlomexPlayerFactory.instance(PlayerListener.class);
         playerListener.onCreated(fxPlayer);
 
         return fxPlayer;
+    }
+
+    @Override
+    public void activate(@NotNull JavaFXMediaPlayer fxPlayer) {
+        // This can't be moved into constructor - it's not created yet
+        @SuppressWarnings("unchecked")
+        PlayerListener<JavaFXMediaPlayer> playerListener = GlomexPlayerFactory.instance(PlayerListener.class);
+        playerListener.onActivated(fxPlayer);
     }
 
 }
